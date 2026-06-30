@@ -11,36 +11,61 @@ import {
   initialMachineryItems,
 } from "@/data/database";
 import { InventoryItem, MachineryItem } from "@/types/database";
-import { predictiveService } from "@/services/predictiveService";
+import { predictiveService, AIStockRecommendation } from "@/services/predictiveService";
+import { databaseService } from "@/services/databaseService";
+import { userService } from "@/services/userService";
+import { requestService } from "@/services/requestService";
 
 export default function DatabaseInputPage() {
-  const [stats, setStats] = useState(initialDatabaseStats);
+  const [stats, setStats] = useState({
+    productsCount: 0,
+    usersCount: 0,
+    incomingItemsCount: 0,
+    totalItemsCount: 0,
+  });
   const [inventoryItems, setInventoryItems] = useState<InventoryItem[]>([]);
-  const [machineryItems, setMachineryItems] = useState<MachineryItem[]>(initialMachineryItems);
+  const [machineryItems, setMachineryItems] = useState<MachineryItem[]>([]);
+  const [predictiveMetrics, setPredictiveMetrics] = useState<AIStockRecommendation[]>([]);
 
-  // Load inventory items from localStorage on mount
+  // Load inventory items & machinery from backend API on mount
   useEffect(() => {
-    const stored = localStorage.getItem("inventoryItems");
-    if (stored) {
-      try {
-        setInventoryItems(JSON.parse(stored));
-      } catch {}
-    } else {
-      setInventoryItems(initialInventoryItems);
-    }
+    const fetchData = async () => {
+      const [apiInventory, apiMachinery] = await Promise.all([
+        databaseService.getInventoryItems(),
+        databaseService.getMachineryItems(),
+      ]);
+      // Hapus fallback ke data palsu! Jika dari DB kosong (length 0), maka biarkan tabel kosong.
+      setInventoryItems(apiInventory);
+      setMachineryItems(apiMachinery);
+    };
+    fetchData();
   }, []);
 
-  // Save inventory items to localStorage on change and update stats
+  // Update stats setiap kali inventoryItems berubah
   useEffect(() => {
-    if (inventoryItems.length > 0) {
-      localStorage.setItem("inventoryItems", JSON.stringify(inventoryItems));
-    }
-    setStats({
-      productsCount: inventoryItems.length,
-      usersCount: 4,
-      incomingItemsCount: 20 + Math.max(0, inventoryItems.length - 3),
-      totalItemsCount: inventoryItems.reduce((acc, curr) => acc + curr.quantity, 0),
-    });
+    const fetchDynamicStats = async () => {
+      // Ambil jumlah user asli
+      const users = await userService.getAllUsers();
+      // Ambil jumlah request yang pending
+      const { pending } = await requestService.fetchAllRequests();
+
+      setStats({
+        productsCount: inventoryItems.length,
+        usersCount: users.length,
+        incomingItemsCount: pending.length,
+        totalItemsCount: inventoryItems.reduce((acc, curr) => acc + curr.quantity, 0),
+      });
+    };
+
+    fetchDynamicStats();
+
+    const fetchMetrics = async () => {
+      if (inventoryItems.length > 0) {
+        const metrics = await predictiveService.calculatePredictiveMetrics(inventoryItems);
+        setPredictiveMetrics(metrics);
+      }
+    };
+    fetchMetrics();
   }, [inventoryItems]);
 
   // Form State for Stock Entry
@@ -49,6 +74,10 @@ export default function DatabaseInputPage() {
   const [stockSize, setStockSize] = useState("");
   const [stockCategory, setStockCategory] = useState("Mechanical");
   const [stockQty, setStockQty] = useState("");
+  const [minStock, setMinStock] = useState("");
+  const [maxStock, setMaxStock] = useState("");
+  const [criticality, setCriticality] = useState("LOW");
+  const [rackLocation, setRackLocation] = useState("");
 
   // Form State for Machinery
   const [machineName, setMachineName] = useState("");
@@ -76,7 +105,7 @@ export default function DatabaseInputPage() {
   };
 
   // Add Stock Handler
-  const handleAddStock = (e: React.FormEvent) => {
+  const handleAddStock = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!stockName.trim() || !stockQty) {
@@ -107,7 +136,17 @@ export default function DatabaseInputPage() {
       category: stockCategory,
       quantity: qty,
       status: status,
+      minStock: minStock ? parseInt(minStock) : 5,
+      maxStock: maxStock ? parseInt(maxStock) : 100,
+      criticalityLevel: criticality,
+      rackLocation: rackLocation.trim() || "A1-01",
     };
+
+    // POST ke backend API, lalu update state UI
+    const success = await databaseService.addInventoryItem(newItem);
+    if (!success) {
+      alert("Failed to save to database. Saving locally only.");
+    }
 
     setInventoryItems([newItem, ...inventoryItems]);
     
@@ -125,22 +164,31 @@ export default function DatabaseInputPage() {
     setStockSize("");
     setStockCategory("Mechanical");
     setStockQty("");
+    setMinStock("");
+    setMaxStock("");
+    setCriticality("LOW");
+    setRackLocation("");
   };
 
   // Delete Stock Handler
-  const handleDeleteStock = (sku: string, qty: number) => {
+  const handleDeleteStock = async (sku: string, qty: number) => {
     if (confirm(`Remove item ${sku} from database?`)) {
-      setInventoryItems(inventoryItems.filter((item) => item.sku !== sku));
-      setStats((prev) => ({
-        ...prev,
-        productsCount: Math.max(0, prev.productsCount - 1),
-        totalItemsCount: Math.max(0, prev.totalItemsCount - qty),
-      }));
+      const success = await databaseService.deleteInventoryItem(sku);
+      if (success) {
+        setInventoryItems(inventoryItems.filter((item) => item.sku !== sku));
+        setStats((prev) => ({
+          ...prev,
+          productsCount: Math.max(0, prev.productsCount - 1),
+          totalItemsCount: Math.max(0, prev.totalItemsCount - qty),
+        }));
+      } else {
+        alert("Failed to delete from database.");
+      }
     }
   };
 
   // Add Machine Handler
-  const handleAddMachine = (e: React.FormEvent) => {
+  const handleAddMachine = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!machineName.trim() || !lastMaintDate) {
@@ -175,6 +223,12 @@ export default function DatabaseInputPage() {
       status: "Operational",
     };
 
+    // POST ke backend API, lalu update state UI
+    const success = await databaseService.addMachineryItem(newMachine);
+    if (!success) {
+      alert("Failed to save machine to database. Saving locally only.");
+    }
+
     setMachineryItems([newMachine, ...machineryItems]);
 
     // Reset Form
@@ -184,9 +238,14 @@ export default function DatabaseInputPage() {
   };
 
   // Delete Machine Handler
-  const handleDeleteMachine = (id: string) => {
+  const handleDeleteMachine = async (id: string) => {
     if (confirm(`Remove machine ${id} from register?`)) {
-      setMachineryItems(machineryItems.filter((m) => m.id !== id));
+      const success = await databaseService.deleteMachineryItem(id);
+      if (success) {
+        setMachineryItems(machineryItems.filter((m) => m.id !== id));
+      } else {
+        alert("Failed to delete machine from database.");
+      }
     }
   };
 
@@ -401,6 +460,57 @@ export default function DatabaseInputPage() {
                   onChange={(e) => setStockQty(e.target.value)}
                 />
               </div>
+
+              {/* Min Stock */}
+              <div>
+                <FormInput
+                  label="Min Stock (Optional)"
+                  type="number"
+                  placeholder="e.g. 5"
+                  min="0"
+                  value={minStock}
+                  onChange={(e) => setMinStock(e.target.value)}
+                />
+              </div>
+
+              {/* Max Stock */}
+              <div>
+                <FormInput
+                  label="Max Stock (Optional)"
+                  type="number"
+                  placeholder="e.g. 100"
+                  min="0"
+                  value={maxStock}
+                  onChange={(e) => setMaxStock(e.target.value)}
+                />
+              </div>
+
+              {/* Criticality Level */}
+              <div className="flex flex-col gap-1.5 w-full">
+                <span className="text-gray-500 text-xs font-normal font-mono uppercase tracking-wide px-1">
+                  Criticality Level
+                </span>
+                <Dropdown
+                  options={[
+                    { value: "LOW", label: "LOW" },
+                    { value: "MEDIUM", label: "MEDIUM" },
+                    { value: "HIGH", label: "HIGH" },
+                  ]}
+                  value={criticality}
+                  onChange={(e) => setCriticality(e.target.value)}
+                  className="w-full h-10 border-zinc-800"
+                />
+              </div>
+
+              {/* Rack Location */}
+              <div className="md:col-span-2">
+                <FormInput
+                  label="Rack Location (Optional)"
+                  placeholder="e.g. A1-01"
+                  value={rackLocation}
+                  onChange={(e) => setRackLocation(e.target.value)}
+                />
+              </div>
             </div>
 
             {/* Action button right-aligned */}
@@ -535,7 +645,7 @@ export default function DatabaseInputPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {predictiveService.calculatePredictiveMetrics(inventoryItems).map((rec) => (
+                    {predictiveMetrics.map((rec) => (
                       <tr
                         key={rec.sku}
                         className="border-b border-zinc-800/50 text-neutral-400 hover:text-zinc-200 transition-colors"

@@ -35,8 +35,8 @@ export function useAuth() {
   /**
    * Mengakhiri sesi dan meredireksi user ke halaman login.
    */
-  const logout = () => {
-    authService.logout();
+  const logout = async () => {
+    await authService.logout();
     setUser(null);
     router.push("/auth/login");
   };

@@ -15,9 +15,10 @@ export default function EngineerDashboard() {
   const [engineerName, setEngineerName] = useState("Engineer Operator");
 
   // Load request lists and user details
-  const loadRequests = () => {
-    setPendingList(requestService.getPendingRequisitions());
-    setProcessedList(requestService.getProcessedRequisitions());
+  const loadRequests = async () => {
+    const { pending, processed } = await requestService.fetchAllRequests();
+    setPendingList(pending);
+    setProcessedList(processed);
   };
 
   useEffect(() => {

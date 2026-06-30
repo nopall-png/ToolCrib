@@ -11,6 +11,10 @@ export interface InventoryItem {
   category: string;
   quantity: number;
   status: "IN STOCK" | "LOW STOCK" | "OUT OF STOCK";
+  minStock?: number;
+  maxStock?: number;
+  criticalityLevel?: string;
+  rackLocation?: string;
 }
 
 export interface MachineryItem {

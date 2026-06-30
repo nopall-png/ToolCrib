@@ -1,11 +1,12 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import DashboardLayout from "@/component/layout/DashboardLayout";
 import FormInput from "@/component/common/FormInput";
 import Dropdown from "@/component/common/Dropdown";
 import { initialUserPersonnel } from "@/data/user-panel";
 import { UserPersonnel } from "@/types/user-panel";
+import { userService } from "@/services/userService";
 
 export default function UserPanelPage() {
   const [personnelList, setPersonnelList] = useState<UserPersonnel[]>(initialUserPersonnel);
@@ -13,19 +14,31 @@ export default function UserPanelPage() {
   const [selectedRoleFilter, setSelectedRoleFilter] = useState("ALL");
   const [showAddModal, setShowAddModal] = useState(false);
 
+  // Fetch data dari backend saat halaman dimuat
+  useEffect(() => {
+    const fetchUsers = async () => {
+      const data = await userService.getAllUsers();
+      if (data.length > 0) {
+        setPersonnelList(data);
+      }
+    };
+    fetchUsers();
+  }, []);
+
   // Form states for creating a new user
   const [newEmpId, setNewEmpId] = useState("");
   const [newName, setNewName] = useState("");
   const [newEmail, setNewEmail] = useState("");
-  const [newRole, setNewRole] = useState<"MECHANIC" | "BUYER" | "ADMIN">("MECHANIC");
+  const [newPassword, setNewPassword] = useState("");
+  const [newRole, setNewRole] = useState<"ENGINEER" | "PROCUREMENT" | "MANAGER">("ENGINEER");
   const [newDepartment, setNewDepartment] = useState("");
   const [newShift, setNewShift] = useState("Shift 1");
-  const [newStatus, setNewStatus] = useState<"ACTIVE" | "OFFLINE">("ACTIVE");
+  const [newStatus, setNewStatus] = useState<"ACTIVE" | "OFFLINE">("OFFLINE");
 
   // Calculate dynamic stats
   const totalPersonnel = personnelList.length;
   const activeSessions = personnelList.filter((p) => p.status === "ACTIVE").length;
-  const systemAdmins = personnelList.filter((p) => p.role === "ADMIN").length;
+  const systemAdmins = personnelList.filter((p) => p.role === "MANAGER").length;
 
   // Filtered List
   const filteredPersonnel = personnelList.filter((p) => {
@@ -33,7 +46,7 @@ export default function UserPanelPage() {
       p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       p.empId.toLowerCase().includes(searchQuery.toLowerCase()) ||
       p.email.toLowerCase().includes(searchQuery.toLowerCase());
-    
+
     const matchesRole = selectedRoleFilter === "ALL" || p.role === selectedRoleFilter;
 
     return matchesSearch && matchesRole;
@@ -56,7 +69,7 @@ export default function UserPanelPage() {
     const csvContent =
       "data:text/csv;charset=utf-8," +
       [headers.join(","), ...rows.map((e) => e.join(","))].join("\n");
-    
+
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
     link.setAttribute("href", encodedUri);
@@ -67,7 +80,7 @@ export default function UserPanelPage() {
   };
 
   // Submit Handler for Add User
-  const handleAddUser = (e: React.FormEvent) => {
+  const handleAddUser = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!newName.trim() || !newEmail.trim() || !newDepartment.trim()) {
@@ -89,9 +102,16 @@ export default function UserPanelPage() {
       role: newRole,
       department: newDepartment.trim(),
       shift: newShift,
-      status: newStatus,
-      lastActive: newStatus === "ACTIVE" ? "Just now" : "Offline",
+      status: "OFFLINE", // Selalu mulai dari offline
+      lastActive: "Offline",
     };
+
+    // Panggil backend API
+    const success = await userService.addUser(newUser, newPassword || "default123");
+    if (!success) {
+      alert("Gagal menambahkan user ke database Supabase!");
+      return;
+    }
 
     setPersonnelList([newUser, ...personnelList]);
     setShowAddModal(false);
@@ -100,29 +120,35 @@ export default function UserPanelPage() {
     setNewEmpId("");
     setNewName("");
     setNewEmail("");
-    setNewRole("MECHANIC");
+    setNewPassword("");
+    setNewRole("ENGINEER");
     setNewDepartment("");
     setNewShift("Shift 1");
-    setNewStatus("ACTIVE");
+    setNewStatus("OFFLINE");
   };
 
-  const handleDeleteUser = (empId: string, name: string) => {
+  const handleDeleteUser = async (empId: string, name: string) => {
     if (confirm(`Remove personnel ${name} (${empId}) from records?`)) {
-      setPersonnelList(personnelList.filter((p) => p.empId !== empId));
+      const success = await userService.deleteUser(empId);
+      if (success) {
+        setPersonnelList(personnelList.filter((p) => p.empId !== empId));
+      } else {
+        alert("Failed to delete user from database.");
+      }
     }
   };
 
   return (
     <DashboardLayout role="manager">
       <div className="flex flex-col gap-8 w-full select-none pb-16">
-        
+
         {/* Header Section & Breadcrumbs */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="flex items-center gap-1.5 text-2xl font-semibold tracking-wide">
             <span className="text-neutral-500 font-medium">Dashboard/</span>
             <span className="text-neutral-400 font-light text-xl">User Pannel</span>
           </div>
-          
+
           <button
             onClick={() => setShowAddModal(true)}
             className="px-5 py-2.5 bg-red-500 hover:bg-red-600 active:bg-red-700 text-white text-xs font-bold font-mono rounded-[10px] shadow-[0px_0px_15px_0px_rgba(239,68,68,0.15)] flex items-center justify-center gap-2 cursor-pointer transition-all tracking-wider uppercase"
@@ -239,11 +265,11 @@ export default function UserPanelPage() {
             <div className="absolute inset-0 bg-gradient-to-r from-transparent to-green-950/5 pointer-events-none"></div>
           </div>
 
-          {/* Card 3: System Admins */}
+          {/* Card 3: Managers count */}
           <div className="bg-neutral-900 border border-zinc-800 rounded-2xl p-6 relative overflow-hidden flex justify-between items-center h-24 shadow-lg">
             <div className="flex flex-col z-10">
               <span className="text-gray-500 text-[10px] font-normal font-mono uppercase tracking-wider">
-                System Admins
+                Managers
               </span>
               <span className="text-white text-3xl font-bold font-mono mt-1">
                 {systemAdmins}
@@ -268,7 +294,7 @@ export default function UserPanelPage() {
 
         {/* Table & Filtering Controls */}
         <div className="flex flex-col gap-4">
-          
+
           {/* Controls Panel */}
           <div className="p-4 bg-neutral-900 border border-zinc-800 rounded-2xl inline-flex flex-col sm:flex-row justify-between items-center gap-4 shadow-xl">
             {/* Search Input */}
@@ -303,16 +329,16 @@ export default function UserPanelPage() {
                 <Dropdown
                   options={[
                     { value: "ALL", label: "All Roles" },
-                    { value: "MECHANIC", label: "Mechanic" },
-                    { value: "BUYER", label: "Buyer" },
-                    { value: "ADMIN", label: "Admin" },
+                    { value: "ENGINEER", label: "Engineer" },
+                    { value: "PROCUREMENT", label: "Procurement" },
+                    { value: "MANAGER", label: "Manager" },
                   ]}
                   value={selectedRoleFilter}
                   onChange={(e) => setSelectedRoleFilter(e.target.value)}
                   className="h-9 border-zinc-800 py-1"
                 />
               </div>
-              
+
               <button
                 onClick={handleExportCSV}
                 className="px-4 py-2 bg-neutral-950 hover:bg-neutral-800 active:bg-neutral-900 text-gray-400 hover:text-white text-xs font-mono rounded-[10px] border border-zinc-800 transition-colors cursor-pointer"
@@ -385,13 +411,12 @@ export default function UserPanelPage() {
                           </td>
                           <td className="py-4 px-4">
                             <span
-                              className={`px-2.5 py-1 rounded-sm text-[9px] font-bold border inline-flex items-center gap-1 ${
-                                p.role === "ADMIN"
+                              className={`px-2.5 py-1 rounded-sm text-[9px] font-bold border inline-flex items-center gap-1 ${p.role === "MANAGER"
                                   ? "bg-red-500/10 text-red-500 border-red-500/20"
-                                  : p.role === "BUYER"
-                                  ? "bg-blue-500/10 text-blue-500 border-blue-500/20"
-                                  : "bg-zinc-800/40 text-gray-300 border-zinc-800"
-                              }`}
+                                  : p.role === "PROCUREMENT"
+                                    ? "bg-blue-500/10 text-blue-500 border-blue-500/20"
+                                    : "bg-zinc-800/40 text-gray-300 border-zinc-800"
+                                }`}
                             >
                               <span className="w-1.5 h-1.5 rounded-full bg-current opacity-60"></span>
                               {p.role}
@@ -409,15 +434,13 @@ export default function UserPanelPage() {
                                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
                                 )}
                                 <span
-                                  className={`relative inline-flex rounded-full h-2 w-2 ${
-                                    p.status === "ACTIVE" ? "bg-green-500" : "bg-gray-600"
-                                  }`}
+                                  className={`relative inline-flex rounded-full h-2 w-2 ${p.status === "ACTIVE" ? "bg-green-500" : "bg-gray-600"
+                                    }`}
                                 ></span>
                               </span>
                               <div className="flex flex-col">
-                                <span className={`text-[10px] font-bold ${
-                                  p.status === "ACTIVE" ? "text-gray-200" : "text-gray-500"
-                                }`}>
+                                <span className={`text-[10px] font-bold ${p.status === "ACTIVE" ? "text-gray-200" : "text-gray-500"
+                                  }`}>
                                   {p.status}
                                 </span>
                                 <span className="text-[9px] text-gray-600 font-normal leading-3">
@@ -469,7 +492,7 @@ export default function UserPanelPage() {
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-neutral-900 border border-zinc-800 rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl relative">
             <div className="h-1 bg-red-500 w-full"></div>
-            
+
             <div className="p-6 flex flex-col gap-6">
               {/* Modal Title */}
               <div className="flex justify-between items-start">
@@ -505,7 +528,7 @@ export default function UserPanelPage() {
                   value={newName}
                   onChange={(e) => setNewName(e.target.value)}
                 />
-                
+
                 <FormInput
                   label="Email Address"
                   type="email"
@@ -513,6 +536,15 @@ export default function UserPanelPage() {
                   isRequired
                   value={newEmail}
                   onChange={(e) => setNewEmail(e.target.value)}
+                />
+
+                <FormInput
+                  label="Account Password"
+                  placeholder="e.g. secret123"
+                  isRequired
+                  type="password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
                 />
 
                 <div className="grid grid-cols-2 gap-4">
@@ -528,12 +560,12 @@ export default function UserPanelPage() {
                     </span>
                     <Dropdown
                       options={[
-                        { value: "MECHANIC", label: "Mechanic" },
-                        { value: "BUYER", label: "Buyer" },
-                        { value: "ADMIN", label: "Admin" },
+                        { value: "ENGINEER", label: "Engineer" },
+                        { value: "PROCUREMENT", label: "Procurement" },
+                        { value: "MANAGER", label: "Manager" },
                       ]}
                       value={newRole}
-                      onChange={(e) => setNewRole(e.target.value as "MECHANIC" | "BUYER" | "ADMIN")}
+                      onChange={(e) => setNewRole(e.target.value as "ENGINEER" | "PROCUREMENT" | "MANAGER")}
                       className="w-full h-10 border-zinc-800"
                     />
                   </div>
@@ -566,20 +598,6 @@ export default function UserPanelPage() {
                   </div>
                 </div>
 
-                <div className="flex flex-col gap-1.5">
-                  <span className="text-gray-500 text-xs font-normal font-mono uppercase tracking-wide px-1">
-                    Initial Connection Status
-                  </span>
-                  <Dropdown
-                    options={[
-                      { value: "ACTIVE", label: "ACTIVE (Online Now)" },
-                      { value: "OFFLINE", label: "OFFLINE (Away)" },
-                    ]}
-                    value={newStatus}
-                    onChange={(e) => setNewStatus(e.target.value as "ACTIVE" | "OFFLINE")}
-                    className="w-full h-10 border-zinc-800"
-                  />
-                </div>
 
                 {/* Submit buttons */}
                 <div className="flex justify-end gap-3 pt-4 border-t border-zinc-800/80">

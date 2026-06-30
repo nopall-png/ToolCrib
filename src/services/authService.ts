@@ -1,47 +1,53 @@
-import { users } from "@/data/user";
-import { auths } from "@/data/auth";
 import { User } from "@/types/user";
+
+const API_BASE = "http://localhost:8000";
 
 export const authService = {
   /**
    * Melakukan autentikasi menggunakan operatorId (employeeId atau username) dan accessKey.
+   * Mengirimkan request POST ke backend FastAPI, bukan mock data lagi.
    */
-  login(operatorId: string, accessKey: string): Promise<User> {
-    return new Promise((resolve, reject) => {
-      // Simulasi delay jaringan
-      setTimeout(() => {
-        let foundUser: User | undefined = users.find(
-          (u) => u.employeeId.toLowerCase() === operatorId.trim().toLowerCase()
-        );
-
-        let foundAuth = auths.find(
-          (a) => a.username.toLowerCase() === operatorId.trim().toLowerCase()
-        );
-
-        if (foundAuth && !foundUser) {
-          const auth = foundAuth;
-          foundUser = users.find((u) => u.id === auth.userId);
-        } else if (foundUser && !foundAuth) {
-          const user = foundUser;
-          foundAuth = auths.find((a) => a.userId === user.id);
-        }
-
-        // Verifikasi password / access key
-        if (foundUser && foundAuth && foundAuth.password === accessKey) {
-          localStorage.setItem("currentUser", JSON.stringify(foundUser));
-          localStorage.setItem("isAuthenticated", "true");
-          resolve(foundUser);
-        } else {
-          reject(new Error("AUTHENTICATION FAILED: Invalid Operator ID or Access Key."));
-        }
-      }, 800);
+  async login(operatorId: string, accessKey: string): Promise<User> {
+    const response = await fetch(`${API_BASE}/api/v1/auth/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ operatorId: operatorId.trim(), accessKey }),
     });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => null);
+      throw new Error(
+        errorData?.detail || "AUTHENTICATION FAILED: Invalid Operator ID or Access Key."
+      );
+    }
+
+    const user: User = await response.json();
+
+    localStorage.setItem("currentUser", JSON.stringify(user));
+    localStorage.setItem("isAuthenticated", "true");
+
+    return user;
   },
 
   /**
-   * Mengakhiri sesi pengguna dengan menghapus data dari localStorage.
+   * Mengakhiri sesi pengguna dengan menghapus data dari localStorage
+   * dan mengirim sinyal ke backend untuk merubah status jadi OFFLINE.
    */
-  logout(): void {
+  async logout(): Promise<void> {
+    const userStr = localStorage.getItem("currentUser");
+    if (userStr) {
+      try {
+        const user = JSON.parse(userStr);
+        await fetch(`${API_BASE}/api/v1/auth/logout`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ operatorId: user.employeeId, accessKey: "" }), // accessKey tak terpakai di logout
+        });
+      } catch (error) {
+        console.error("Gagal memberitahu server tentang status logout", error);
+      }
+    }
+    
     localStorage.removeItem("currentUser");
     localStorage.removeItem("isAuthenticated");
   },

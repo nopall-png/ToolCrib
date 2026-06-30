@@ -40,7 +40,9 @@ export default function LoginPage() {
     if (success) {
       const currentUser = authService.getCurrentUser();
       if (currentUser) {
-        router.push(`/dashboard/${currentUser.role}`);
+        let routeRole = currentUser.role.toLowerCase();
+        if (routeRole === "engineering") routeRole = "engineer";
+        router.push(`/dashboard/${routeRole}`);
       }
     }
   };

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import FormInput from "@/component/common/FormInput";
 import { requestService } from "@/services/requestService";
+import { authService } from "@/services/authService";
 
 interface RequisitionFormProps {
   engineerName: string;
@@ -10,30 +11,54 @@ interface RequisitionFormProps {
 export default function RequisitionForm({ engineerName, onSuccess }: RequisitionFormProps) {
   const [itemName, setItemName] = useState("");
   const [quantity, setQuantity] = useState(1);
-  const [destination, setDestination] = useState("CNC Milling Axis-5");
+  const [destination, setDestination] = useState("");
   const [urgency, setUrgency] = useState<"CRITICAL" | "HIGH" | "NORMAL">("NORMAL");
   const [docName, setDocName] = useState("");
+  const [machines, setMachines] = useState<any[]>([]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  React.useEffect(() => {
+    import("@/services/databaseService").then(({ databaseService }) => {
+      databaseService.getMachineryItems().then((items) => {
+        setMachines(items);
+        if (items.length > 0) {
+          setDestination(`${items[0].machineName} (${items[0].id})`);
+        }
+      });
+    });
+  }, []);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!itemName.trim() || !destination.trim() || quantity <= 0) {
       alert("Please fill all required fields correctly.");
       return;
     }
 
-    const docSize = docName ? `${(Math.random() * 4 + 0.5).toFixed(1)} MB` : "N/A";
-    const attachment = docName || "No attachment";
+    const currentUser = authService.getCurrentUser();
+    if (!currentUser || !currentUser.id) {
+      alert("Session expired or user not found. Please log in again.");
+      return;
+    }
 
-    requestService.addRequisition({
-      requestor: engineerName,
-      shift: "Shift 1",
-      itemName: itemName.trim(),
-      destination: destination.trim(),
+    // Ekstrak machine_id dari string "Mesin ABC (MCH-001)" -> "MCH-001"
+    const machineIdMatch = destination.match(/\(([^)]+)\)$/);
+    const machineId = machineIdMatch ? machineIdMatch[1] : destination;
+
+    const attachment = docName || undefined;
+
+    const success = await requestService.addRequisition({
+      requestor_id: currentUser.id,
+      sku: itemName.trim(),
+      machine_id: machineId,
       quantity: Number(quantity),
-      documentName: attachment,
-      documentSize: docSize,
+      document_url: attachment,
       urgency,
     });
+
+    if (!success) {
+      alert("Failed to submit requisition. Please check if SKU is valid.");
+      return;
+    }
 
     // Reset Form
     setItemName("");
@@ -50,11 +75,11 @@ export default function RequisitionForm({ engineerName, onSuccess }: Requisition
     <div className="w-full bg-neutral-900 border border-zinc-800 rounded-2xl p-8 shadow-xl">
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Item Name */}
+          {/* Item SKU */}
           <FormInput
-            label="Item Name / Part Description"
+            label="Item SKU / Part ID"
             isRequired
-            placeholder="e.g. Servo Motor AX-9"
+            placeholder="e.g. SKU-1002"
             value={itemName}
             onChange={(e) => setItemName(e.target.value)}
           />
@@ -86,11 +111,15 @@ export default function RequisitionForm({ engineerName, onSuccess }: Requisition
               value={destination}
               onChange={(e) => setDestination(e.target.value)}
             >
-              <option value="CNC Milling Axis-5 (MCH-0012)">CNC Milling Axis-5 (MCH-0012)</option>
-              <option value="Industrial Lathe L-300 (MCH-0013)">Industrial Lathe L-300 (MCH-0013)</option>
-              <option value="Hydraulic Press H-50 (MCH-0014)">Hydraulic Press H-50 (MCH-0014)</option>
-              <option value="Stamping Cell Press 2">Stamping Cell Press 2</option>
-              <option value="General Mechanical Inventory">General Mechanical Inventory</option>
+              {machines.length > 0 ? (
+                machines.map((m) => (
+                  <option key={m.id} value={`${m.machineName} (${m.id})`}>
+                    {m.machineName} ({m.id})
+                  </option>
+                ))
+              ) : (
+                <option value="">-- No Machinery Found in Database --</option>
+              )}
             </select>
           </div>
 

@@ -1,8 +1,39 @@
-import React from "react";
-import { initialMaintenanceSchedules } from "@/data/database";
+"use client";
+
+import React, { useState, useEffect } from "react";
+import { databaseService } from "@/services/databaseService";
 
 export default function MaintenanceSchedule() {
-  const schedules = initialMaintenanceSchedules;
+  const [schedules, setSchedules] = useState<any[]>([]);
+
+  useEffect(() => {
+    const fetchSchedules = async () => {
+      const machines = await databaseService.getMachineryItems();
+      
+      const mappedSchedules = machines.map((m) => {
+        let status = "SCHEDULED";
+        let statusClass = "text-blue-400 border-blue-400/20 bg-blue-400/10";
+
+        if (m.status === "Maintenance Required") {
+          status = "URGENT";
+          statusClass = "text-red-400 border-red-400/20 bg-red-400/10";
+        }
+
+        return {
+          id: m.id,
+          name: m.machineName || m.id,
+          task: "Routine Maintenance",
+          date: m.standardSchedule || "To be scheduled",
+          status,
+          statusClass,
+        };
+      });
+
+      setSchedules(mappedSchedules);
+    };
+
+    fetchSchedules();
+  }, []);
 
   return (
     <div className="w-full bg-neutral-900 border border-zinc-800 rounded-2xl p-6 shadow-2xl space-y-4">

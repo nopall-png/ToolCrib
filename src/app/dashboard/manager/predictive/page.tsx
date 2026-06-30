@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import DashboardLayout from "@/component/layout/DashboardLayout";
-import { initialInventoryItems } from "@/data/database";
+import { databaseService } from "@/services/databaseService";
 import { InventoryItem } from "@/types/database";
 import {
   predictiveService,
@@ -24,40 +24,53 @@ export default function PredictivePage() {
   const [selectedSku, setSelectedSku] = useState("");
   const [forecastData, setForecastData] = useState<ForecastPoint[]>([]);
 
+  const [loadingMetrics, setLoadingMetrics] = useState(false);
+  const [loadingDuplicates, setLoadingDuplicates] = useState(false);
+  const [loadingForecast, setLoadingForecast] = useState(false);
+
   useEffect(() => {
-    // Load database items
-    const stored = localStorage.getItem("inventoryItems");
-    let items = initialInventoryItems;
-    if (stored) {
-      try {
-        items = JSON.parse(stored);
-      } catch {}
-    }
-    setInventoryItems(items);
+    const fetchInitialData = async () => {
+      // Load real database items
+      const items = await databaseService.getInventoryItems();
+      setInventoryItems(items);
 
-    // Compute metrics
-    const computedMetrics = predictiveService.calculatePredictiveMetrics(items);
-    setMetrics(computedMetrics);
+      if (items.length > 0) {
+        setSelectedSku(items[0].sku);
+      }
 
-    if (items.length > 0) {
-      setSelectedSku(items[0].sku);
-    }
+      // Compute metrics
+      setLoadingMetrics(true);
+      const computedMetrics = await predictiveService.calculatePredictiveMetrics(items);
+      setMetrics(computedMetrics);
+      setLoadingMetrics(false);
+    };
+    fetchInitialData();
   }, []);
 
   // Update duplicate matches when threshold changes
   useEffect(() => {
-    if (inventoryItems.length > 0) {
-      const dups = predictiveService.detectDuplicates(inventoryItems, similarityThreshold);
-      setDuplicates(dups);
-    }
+    const fetchDuplicates = async () => {
+      if (inventoryItems.length > 0) {
+        setLoadingDuplicates(true);
+        const dups = await predictiveService.detectDuplicates(inventoryItems, similarityThreshold);
+        setDuplicates(dups);
+        setLoadingDuplicates(false);
+      }
+    };
+    fetchDuplicates();
   }, [inventoryItems, similarityThreshold]);
 
   // Update forecast data when SKU changes
   useEffect(() => {
-    if (selectedSku) {
-      const data = predictiveService.forecastStock(selectedSku);
-      setForecastData(data);
-    }
+    const fetchForecast = async () => {
+      if (selectedSku) {
+        setLoadingForecast(true);
+        const data = await predictiveService.forecastStock(selectedSku);
+        setForecastData(data);
+        setLoadingForecast(false);
+      }
+    };
+    fetchForecast();
   }, [selectedSku]);
 
   // Minimal helper to get color of ABC classes
@@ -333,7 +346,13 @@ export default function PredictivePage() {
             </div>
 
             {/* Minimalist Table */}
-            <div className="w-full bg-neutral-900 border border-zinc-800 rounded-xl overflow-hidden">
+            <div className="w-full bg-neutral-900 border border-zinc-800 rounded-xl overflow-hidden relative min-h-[300px]">
+              {loadingMetrics ? (
+                <div className="absolute inset-0 flex flex-col items-center justify-center bg-neutral-900/80 backdrop-blur-sm z-10 gap-4">
+                  <svg className="animate-spin text-blue-500" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/></svg>
+                  <span className="text-blue-500 font-mono text-[10px] uppercase font-bold tracking-widest">Processing ABC/XYZ Matrices in Python AI Engine...</span>
+                </div>
+              ) : null}
               <div className="overflow-x-auto w-full text-xs font-mono">
                 <table className="w-full text-left border-collapse">
                   <thead>
@@ -403,38 +422,47 @@ export default function PredictivePage() {
             </div>
 
             {/* Grid of Minimal Cards instead of table */}
-            {duplicates.length === 0 ? (
-              <div className="py-12 text-center text-zinc-500 text-[10px] uppercase font-mono tracking-widest bg-neutral-900 border border-zinc-850 rounded-xl">
-                No potential duplicates detected above threshold.
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {duplicates.map((dup, idx) => (
-                  <div key={idx} className="bg-neutral-900 border border-zinc-800/80 p-4 rounded-xl flex flex-col justify-between hover:border-zinc-700 transition-colors">
-                    <div>
-                      <div className="flex justify-between items-center pb-2 border-b border-zinc-800/60 mb-3">
-                        <span className="text-[10px] text-zinc-500 font-mono uppercase font-semibold">Catalog Overlap #{idx+1}</span>
-                        <span className="text-red-400 font-mono text-xs font-bold">{dup.similarityScore}% Match</span>
+            <div className="relative min-h-[200px]">
+              {loadingDuplicates ? (
+                <div className="absolute inset-0 flex flex-col items-center justify-center bg-neutral-900/80 backdrop-blur-sm z-10 gap-4 rounded-xl border border-zinc-850">
+                  <svg className="animate-spin text-red-500" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/></svg>
+                  <span className="text-red-500 font-mono text-[10px] uppercase font-bold tracking-widest">Running NLP Cosine Similarity...</span>
+                </div>
+              ) : null}
+
+              {duplicates.length === 0 ? (
+                <div className="py-12 text-center text-zinc-500 text-[10px] uppercase font-mono tracking-widest bg-neutral-900 border border-zinc-850 rounded-xl">
+                  No potential duplicates detected above threshold.
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {duplicates.map((dup, idx) => (
+                    <div key={idx} className="bg-neutral-900 border border-zinc-800/80 p-4 rounded-xl flex flex-col justify-between hover:border-zinc-700 transition-colors">
+                      <div>
+                        <div className="flex justify-between items-center pb-2 border-b border-zinc-800/60 mb-3">
+                          <span className="text-[10px] text-zinc-500 font-mono uppercase font-semibold">Catalog Overlap #{idx+1}</span>
+                          <span className="text-red-400 font-mono text-xs font-bold">{dup.similarityScore}% Match</span>
+                        </div>
+                        <div className="space-y-2">
+                          <div className="flex flex-col">
+                            <span className="text-[10px] text-zinc-500 font-mono font-bold">{dup.sku1}</span>
+                            <span className="text-zinc-300 text-xs font-medium">{dup.desc1}</span>
+                          </div>
+                          <div className="w-full border-t border-zinc-850/60 my-1"></div>
+                          <div className="flex flex-col">
+                            <span className="text-[10px] text-zinc-500 font-mono font-bold">{dup.sku2}</span>
+                            <span className="text-zinc-300 text-xs font-medium">{dup.desc2}</span>
+                          </div>
+                        </div>
                       </div>
-                      <div className="space-y-2">
-                        <div className="flex flex-col">
-                          <span className="text-[10px] text-zinc-500 font-mono font-bold">{dup.sku1}</span>
-                          <span className="text-zinc-300 text-xs font-medium">{dup.desc1}</span>
-                        </div>
-                        <div className="w-full border-t border-zinc-850/60 my-1"></div>
-                        <div className="flex flex-col">
-                          <span className="text-[10px] text-zinc-500 font-mono font-bold">{dup.sku2}</span>
-                          <span className="text-zinc-300 text-xs font-medium">{dup.desc2}</span>
-                        </div>
+                      <div className="mt-4 pt-2 border-t border-zinc-850 flex justify-end">
+                        <span className="text-[9px] font-mono text-zinc-500 uppercase">Recommendation: Catalog Consolidation</span>
                       </div>
                     </div>
-                    <div className="mt-4 pt-2 border-t border-zinc-850 flex justify-end">
-                      <span className="text-[9px] font-mono text-zinc-500 uppercase">Recommendation: Catalog Consolidation</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         )}
 
@@ -461,8 +489,16 @@ export default function PredictivePage() {
               </select>
             </div>
 
-            {/* Svg Chart */}
-            {renderSvgChart()}
+            {/* Svg Chart with Loading Overlay */}
+            <div className="relative min-h-[300px]">
+              {loadingForecast ? (
+                <div className="absolute inset-0 flex flex-col items-center justify-center bg-neutral-900/80 backdrop-blur-sm z-10 gap-4 rounded-xl border border-zinc-850">
+                  <svg className="animate-spin text-purple-500" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/></svg>
+                  <span className="text-purple-500 font-mono text-[10px] uppercase font-bold tracking-widest">Generating Prophet Time-Series Forecast...</span>
+                </div>
+              ) : null}
+              {renderSvgChart()}
+            </div>
 
             {/* Simple Minimal Legend */}
             <div className="flex justify-center gap-6 text-[10px] font-mono text-zinc-500 py-1">

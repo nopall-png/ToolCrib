@@ -12,16 +12,17 @@ export default function ProcurementDashboard() {
   const [processedList, setProcessedList] = useState<ProcessedRequisition[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
 
-  const loadRequests = () => {
-    setProcessedList(requestService.getProcessedRequisitions());
+  const loadRequests = async () => {
+    const { processed } = await requestService.fetchAllRequests();
+    setProcessedList(processed);
   };
 
   useEffect(() => {
     loadRequests();
   }, []);
 
-  const handleStatusChange = (id: string, newStatus: any) => {
-    requestService.updateProcessedStatus(id, newStatus);
+  const handleStatusChange = async (id: string, newStatus: any) => {
+    await requestService.updateStatus(id, newStatus);
     loadRequests();
   };
 

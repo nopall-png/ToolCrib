@@ -1,5 +1,5 @@
-import React from "react";
 import { Requisition, ProcessedRequisition } from "@/types/request";
+import { getStatusLabel } from "@/features/procurement/utils";
 
 interface RequisitionLogsProps {
   pendingList: Requisition[];
@@ -85,14 +85,8 @@ export default function RequisitionLogs({ pendingList, processedList }: Requisit
                   <td className="py-4 px-4 text-gray-500">{proc.documentName}</td>
                   <td className="py-4 px-4 text-gray-500">-</td>
                   <td className="py-4 px-4 text-right">
-                    <span className={`px-2 py-1 rounded text-[9px] font-bold border ${
-                      proc.status === "PURCHASING" || proc.status === "APPROVED" ? "bg-blue-500/10 text-blue-500 border-blue-500/20" :
-                      proc.status === "DELIVERED" ? "bg-green-500/10 text-green-500 border-green-500/20" :
-                      "bg-red-500/10 text-red-500 border-red-500/20"
-                    }`}>
-                      {proc.status === "PURCHASING" ? "PURCHASING" :
-                       proc.status === "DELIVERED" ? "DELIVERED" :
-                       proc.status === "APPROVED" ? "APPROVED" : "REJECTED"}
+                    <span className={`px-2 py-1 rounded text-[9px] font-bold border ${getStatusLabel(proc.status).className}`}>
+                      {getStatusLabel(proc.status).label}
                     </span>
                   </td>
                 </tr>

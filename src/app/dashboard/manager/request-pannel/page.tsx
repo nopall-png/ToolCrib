@@ -5,15 +5,17 @@ import DashboardLayout from "@/component/layout/DashboardLayout";
 import Dropdown from "@/component/common/Dropdown";
 import { requestService } from "@/services/requestService";
 import { Requisition, ProcessedRequisition } from "@/types/request";
+import { getStatusLabel } from "@/features/procurement/utils";
 
 export default function RequestPanelPage() {
   const [pendingList, setPendingList] = useState<Requisition[]>([]);
   const [processedList, setProcessedList] = useState<ProcessedRequisition[]>([]);
   const [filterPeriod, setFilterPeriod] = useState("monthly");
 
-  const loadRequests = () => {
-    setPendingList(requestService.getPendingRequisitions());
-    setProcessedList(requestService.getProcessedRequisitions());
+  const loadRequests = async () => {
+    const { pending, processed } = await requestService.fetchAllRequests();
+    setPendingList(pending);
+    setProcessedList(processed);
   };
 
   useEffect(() => {
@@ -26,16 +28,18 @@ export default function RequestPanelPage() {
     { value: "monthly", label: "Monthly" },
   ];
 
-  // Accept/Approve Handler (Moves to processed with status PURCHASING/APPROVED)
-  const handleAccept = (req: Requisition) => {
-    requestService.approveRequisition(req.id);
-    loadRequests();
+  // Accept/Approve Handler (Moves to processed with status PURCHASING)
+  const handleAccept = async (req: Requisition) => {
+    const success = await requestService.approveRequisition(req.id);
+    if (success) loadRequests();
+    else alert("Gagal menyetujui request.");
   };
 
   // Reject Handler (Moves to processed with status REJECTED)
-  const handleReject = (req: Requisition) => {
-    requestService.rejectRequisition(req.id);
-    loadRequests();
+  const handleReject = async (req: Requisition) => {
+    const success = await requestService.rejectRequisition(req.id);
+    if (success) loadRequests();
+    else alert("Gagal menolak request.");
   };
 
   return (
@@ -323,14 +327,8 @@ export default function RequestPanelPage() {
                       </td>
                       <td className="py-3.5 px-4 text-center text-gray-400 font-semibold">{proc.quantity}</td>
                       <td className="py-3.5 px-4">
-                        <span
-                          className={`px-2 py-0.5 rounded-sm text-[9px] font-bold border ${
-                            proc.status === "PURCHASING" || proc.status === "APPROVED"
-                              ? "bg-blue-500/10 text-blue-500 border-blue-500/20"
-                              : "bg-red-500/10 text-red-500 border-red-500/20"
-                          }`}
-                        >
-                          {proc.status}
+                        <span className={`px-2 py-0.5 rounded-sm text-[9px] font-bold border ${getStatusLabel(proc.status).className}`}>
+                          {getStatusLabel(proc.status).label}
                         </span>
                       </td>
                       <td className="py-3.5 px-4 text-right text-gray-500">{proc.dateProcessed}</td>
