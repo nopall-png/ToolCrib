@@ -1,18 +1,24 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import DashboardLayout from "@/component/layout/DashboardLayout";
 import Dropdown from "@/component/common/Dropdown";
-import {
-  initialPendingRequisitions,
-  initialProcessedRequisitions,
-} from "@/data/request";
+import { requestService } from "@/services/requestService";
 import { Requisition, ProcessedRequisition } from "@/types/request";
 
 export default function RequestPanelPage() {
-  const [pendingList, setPendingList] = useState<Requisition[]>(initialPendingRequisitions);
-  const [processedList, setProcessedList] = useState<ProcessedRequisition[]>(initialProcessedRequisitions);
+  const [pendingList, setPendingList] = useState<Requisition[]>([]);
+  const [processedList, setProcessedList] = useState<ProcessedRequisition[]>([]);
   const [filterPeriod, setFilterPeriod] = useState("monthly");
+
+  const loadRequests = () => {
+    setPendingList(requestService.getPendingRequisitions());
+    setProcessedList(requestService.getProcessedRequisitions());
+  };
+
+  useEffect(() => {
+    loadRequests();
+  }, []);
 
   const filterOptions = [
     { value: "daily", label: "Daily" },
@@ -22,46 +28,14 @@ export default function RequestPanelPage() {
 
   // Accept/Approve Handler (Moves to processed with status PURCHASING/APPROVED)
   const handleAccept = (req: Requisition) => {
-    const now = new Date();
-    const formattedDate = `${now.toISOString().split("T")[0]} ${now.toLocaleTimeString([], {
-      hour: "2-digit",
-      minute: "2-digit",
-    })}`;
-
-    const newProcessed: ProcessedRequisition = {
-      id: req.id,
-      itemName: req.itemName,
-      destination: req.destination.includes("Dest:") ? req.destination : `Dest: ${req.destination}`,
-      documentName: req.documentName,
-      quantity: req.quantity,
-      status: "PURCHASING", // Approved moves to purchasing state matching figma screenshot
-      dateProcessed: formattedDate,
-    };
-
-    setPendingList(pendingList.filter((item) => item.id !== req.id));
-    setProcessedList([newProcessed, ...processedList]);
+    requestService.approveRequisition(req.id);
+    loadRequests();
   };
 
   // Reject Handler (Moves to processed with status REJECTED)
   const handleReject = (req: Requisition) => {
-    const now = new Date();
-    const formattedDate = `${now.toISOString().split("T")[0]} ${now.toLocaleTimeString([], {
-      hour: "2-digit",
-      minute: "2-digit",
-    })}`;
-
-    const newProcessed: ProcessedRequisition = {
-      id: req.id,
-      itemName: req.itemName,
-      destination: req.destination.includes("Dest:") ? req.destination : `Dest: ${req.destination}`,
-      documentName: req.documentName,
-      quantity: req.quantity,
-      status: "REJECTED",
-      dateProcessed: formattedDate,
-    };
-
-    setPendingList(pendingList.filter((item) => item.id !== req.id));
-    setProcessedList([newProcessed, ...processedList]);
+    requestService.rejectRequisition(req.id);
+    loadRequests();
   };
 
   return (

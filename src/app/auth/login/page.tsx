@@ -3,23 +3,23 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { users } from "@/data/user";
-import { auths } from "@/data/auth";
-import { User } from "@/types/user";
+import { useAuth } from "@/hooks/useAuth";
+import { authService } from "@/services/authService";
 
 export default function LoginPage() {
   const router = useRouter();
+  const { login, isLoading, error: authError } = useAuth();
   const [operatorId, setOperatorId] = useState("");
   const [accessKey, setAccessKey] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
   const [mounted, setMounted] = useState(false);
+
+  const displayError = error || authError;
 
   // Ensure mounting on client side
   useEffect(() => {
-    localStorage.removeItem("currentUser");
-    localStorage.removeItem("isAuthenticated");
+    authService.logout();
 
     const timer = setTimeout(() => {
       setMounted(true);
@@ -27,7 +27,7 @@ export default function LoginPage() {
     return () => clearTimeout(timer);
   }, []);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
 
@@ -36,41 +36,13 @@ export default function LoginPage() {
       return;
     }
 
-    setIsLoading(true);
-
-    // Simulate small delay for realistic authentication feel
-    setTimeout(() => {
-      // Find user by Employee ID (EMP-xxxx) or Username (manager, procurement, engineer)
-      let foundUser: User | undefined = users.find(
-        (u) => u.employeeId.toLowerCase() === operatorId.trim().toLowerCase()
-      );
-
-      let foundAuth = auths.find(
-        (a) => a.username.toLowerCase() === operatorId.trim().toLowerCase()
-      );
-
-      if (foundAuth && !foundUser) {
-        const auth = foundAuth;
-        foundUser = users.find((u) => u.id === auth.userId);
-      } else if (foundUser && !foundAuth) {
-        const user = foundUser;
-        foundAuth = auths.find((a) => a.userId === user.id);
+    const success = await login(operatorId, accessKey);
+    if (success) {
+      const currentUser = authService.getCurrentUser();
+      if (currentUser) {
+        router.push(`/dashboard/${currentUser.role}`);
       }
-
-      // Verify password
-      if (foundUser && foundAuth && foundAuth.password === accessKey) {
-        // Successful login
-        localStorage.setItem("currentUser", JSON.stringify(foundUser));
-        localStorage.setItem("isAuthenticated", "true");
-        
-        // Redirect to dashboard based on role
-        const targetDashboard = `/dashboard/${foundUser.role}`;
-        router.push(targetDashboard);
-      } else {
-        setError("AUTHENTICATION FAILED: Invalid Operator ID or Access Key.");
-        setIsLoading(false);
-      }
-    }, 800);
+    }
   };
 
   const handleResetKey = () => {
@@ -84,41 +56,11 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="relative min-h-screen w-full bg-neutral-950 flex flex-col items-center justify-center px-4 overflow-hidden select-none">
-      {/* Decorative Blur Backgrounds */}
-      <div className="w-[800px] h-[800px] absolute left-1/2 top-1/2 -translate-x-[60%] -translate-y-[55%] bg-red-500/5 rounded-full blur-[120px] pointer-events-none"></div>
-      <div className="w-96 h-96 absolute right-[10%] top-0 bg-green-500/5 rounded-full blur-[100px] pointer-events-none"></div>
-      <div className="absolute inset-0 bg-gradient-to-r from-zinc-800/10 to-black/0 pointer-events-none"></div>
-
+    <div className="relative min-h-screen w-full bg-neutral-950 flex flex-col items-center justify-center px-4 select-none">
       {/* Main Container */}
       <div className="w-full max-w-sm flex flex-col justify-start items-center gap-6 z-10">
-        
-        {/* Secure Gateway Badge */}
-        <div className="px-3 py-1.5 bg-neutral-900/80 backdrop-blur-md rounded-full border border-zinc-800 flex justify-start items-center gap-2">
-          {/* Padlock Icon */}
-          <div className="w-4 h-4 flex items-center justify-center text-green-500">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="14"
-              height="14"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-              <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-            </svg>
-          </div>
-          <div className="text-gray-400 text-[10px] font-normal font-mono uppercase tracking-widest">
-            Secure Gateway
-          </div>
-        </div>
-
         {/* Login Form Card */}
-        <div className="w-full bg-neutral-900/90 backdrop-blur-md rounded-2xl border border-zinc-800 p-8 shadow-[0px_25px_50px_-12px_rgba(0,0,0,0.80)]">
+        <div className="w-full bg-neutral-900 border border-zinc-800 rounded-2xl p-8 shadow-xl">
           
           {/* Header */}
           <div className="flex flex-col justify-start items-center text-center">
@@ -265,9 +207,9 @@ export default function LoginPage() {
             </div>
 
             {/* Error Message */}
-            {error && (
+            {displayError && (
               <div className="p-3 bg-red-950/40 border border-red-900/50 rounded-lg text-red-500 text-[11px] font-mono leading-relaxed">
-                {error}
+                {displayError}
               </div>
             )}
 
@@ -276,7 +218,7 @@ export default function LoginPage() {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full h-12 flex justify-center items-center gap-2 bg-red-500 hover:bg-red-600 active:bg-red-700 text-white rounded-lg shadow-[0px_0px_20px_0px_rgba(239,68,68,0.20)] font-bold text-xs tracking-wider uppercase transition-all duration-200 disabled:opacity-60 disabled:cursor-wait cursor-pointer"
+                className="w-full h-12 flex justify-center items-center gap-2 bg-red-500 hover:bg-red-600 active:bg-red-700 text-white rounded-lg shadow-md font-bold text-xs tracking-wider uppercase transition-all duration-200 disabled:opacity-60 disabled:cursor-wait cursor-pointer"
               >
                 {isLoading ? (
                   <>

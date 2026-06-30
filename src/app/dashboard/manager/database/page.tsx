@@ -1,20 +1,47 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import DashboardLayout from "@/component/layout/DashboardLayout";
 import FormInput from "@/component/common/FormInput";
 import Dropdown from "@/component/common/Dropdown";
+import Link from "next/link";
 import {
   initialDatabaseStats,
   initialInventoryItems,
   initialMachineryItems,
 } from "@/data/database";
 import { InventoryItem, MachineryItem } from "@/types/database";
+import { predictiveService } from "@/services/predictiveService";
 
 export default function DatabaseInputPage() {
   const [stats, setStats] = useState(initialDatabaseStats);
-  const [inventoryItems, setInventoryItems] = useState<InventoryItem[]>(initialInventoryItems);
+  const [inventoryItems, setInventoryItems] = useState<InventoryItem[]>([]);
   const [machineryItems, setMachineryItems] = useState<MachineryItem[]>(initialMachineryItems);
+
+  // Load inventory items from localStorage on mount
+  useEffect(() => {
+    const stored = localStorage.getItem("inventoryItems");
+    if (stored) {
+      try {
+        setInventoryItems(JSON.parse(stored));
+      } catch {}
+    } else {
+      setInventoryItems(initialInventoryItems);
+    }
+  }, []);
+
+  // Save inventory items to localStorage on change and update stats
+  useEffect(() => {
+    if (inventoryItems.length > 0) {
+      localStorage.setItem("inventoryItems", JSON.stringify(inventoryItems));
+    }
+    setStats({
+      productsCount: inventoryItems.length,
+      usersCount: 4,
+      incomingItemsCount: 20 + Math.max(0, inventoryItems.length - 3),
+      totalItemsCount: inventoryItems.reduce((acc, curr) => acc + curr.quantity, 0),
+    });
+  }, [inventoryItems]);
 
   // Form State for Stock Entry
   const [stockName, setStockName] = useState("");
@@ -35,6 +62,18 @@ export default function DatabaseInputPage() {
     { value: "Electrical", label: "Electrical" },
     { value: "Pneumatics", label: "Pneumatics" },
   ];
+
+  const getAbcColor = (abc: "A" | "B" | "C") => {
+    if (abc === "A") return "bg-red-500/10 text-red-500 border-red-500/20";
+    if (abc === "B") return "bg-yellow-500/10 text-yellow-500 border-yellow-500/20";
+    return "bg-green-500/10 text-green-500 border-green-500/20";
+  };
+
+  const getXyzColor = (xyz: "X" | "Y" | "Z") => {
+    if (xyz === "X") return "bg-cyan-500/10 text-cyan-500 border-cyan-500/20";
+    if (xyz === "Y") return "bg-purple-500/10 text-purple-500 border-purple-500/20";
+    return "bg-orange-500/10 text-orange-500 border-orange-500/20";
+  };
 
   // Add Stock Handler
   const handleAddStock = (e: React.FormEvent) => {
@@ -161,15 +200,12 @@ export default function DatabaseInputPage() {
             <span className="text-neutral-500 font-medium">Dashboard/</span>
             <span className="text-neutral-400 font-light text-xl">Database</span>
           </div>
-          <div className="text-[10px] font-mono bg-neutral-900 border border-zinc-800 text-neutral-400 px-3 py-1.5 rounded-lg">
-            SYS NODE: TC_DB_PROD
-          </div>
         </div>
 
         {/* 4 Stat Cards at the Top */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {/* Card 1: Product */}
-          <div className="bg-neutral-900 border border-zinc-800 rounded-[20px] p-6 relative overflow-hidden flex items-center justify-between h-40">
+          <div className="bg-neutral-900 border border-zinc-800 rounded-[20px] p-6 relative flex items-center justify-between h-40">
             <div className="flex flex-col gap-2 z-10">
               <span className="text-white text-3xl font-bold font-sans tracking-wide leading-8">
                 {stats.productsCount}
@@ -191,11 +227,10 @@ export default function DatabaseInputPage() {
                 <path d="M21.5 12H16l-3.5 7L9 5l-3.5 7H2"></path>
               </svg>
             </div>
-            <div className="absolute right-0 top-0 w-24 h-24 bg-red-500/5 rounded-full blur-2xl pointer-events-none"></div>
           </div>
 
           {/* Card 2: User */}
-          <div className="bg-neutral-900 border border-zinc-800 rounded-[20px] p-6 relative overflow-hidden flex items-center justify-between h-40">
+          <div className="bg-neutral-900 border border-zinc-800 rounded-[20px] p-6 relative flex items-center justify-between h-40">
             <div className="flex flex-col gap-2 z-10">
               <span className="text-white text-3xl font-bold font-sans tracking-wide leading-8">
                 {stats.usersCount}
@@ -220,11 +255,10 @@ export default function DatabaseInputPage() {
                 <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
               </svg>
             </div>
-            <div className="absolute right-0 top-0 w-24 h-24 bg-yellow-500/5 rounded-full blur-2xl pointer-events-none"></div>
           </div>
 
           {/* Card 3: Total Incoming Items */}
-          <div className="bg-neutral-900 border border-zinc-800 rounded-[20px] p-6 relative overflow-hidden flex items-center justify-between h-40">
+          <div className="bg-neutral-900 border border-zinc-800 rounded-[20px] p-6 relative flex items-center justify-between h-40">
             <div className="flex flex-col gap-2 z-10">
               <span className="text-white text-3xl font-bold font-sans tracking-wide leading-8">
                 {stats.incomingItemsCount}
@@ -247,11 +281,10 @@ export default function DatabaseInputPage() {
                 <path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"></path>
               </svg>
             </div>
-            <div className="absolute right-0 top-0 w-24 h-24 bg-blue-500/5 rounded-full blur-2xl pointer-events-none"></div>
           </div>
 
           {/* Card 4: Total Items */}
-          <div className="bg-neutral-900 border border-zinc-800 rounded-[20px] p-6 relative overflow-hidden flex items-center justify-between h-40">
+          <div className="bg-neutral-900 border border-zinc-800 rounded-[20px] p-6 relative flex items-center justify-between h-40">
             <div className="flex flex-col gap-2 z-10">
               <span className="text-white text-3xl font-bold font-sans tracking-wide leading-8">
                 {stats.totalItemsCount.toLocaleString()}
@@ -275,7 +308,6 @@ export default function DatabaseInputPage() {
                 <line x1="12" y1="22.08" x2="12" y2="12"></line>
               </svg>
             </div>
-            <div className="absolute right-0 top-0 w-24 h-24 bg-green-500/5 rounded-full blur-2xl pointer-events-none"></div>
           </div>
         </div>
 
@@ -309,9 +341,8 @@ export default function DatabaseInputPage() {
           {/* Stock Form Card */}
           <form
             onSubmit={handleAddStock}
-            className="w-full bg-neutral-900 border border-zinc-800 rounded-2xl p-8 relative overflow-hidden shadow-2xl"
+            className="w-full bg-neutral-900 border border-zinc-800 rounded-2xl p-8 shadow-xl"
           >
-            <div className="w-[300px] h-[300px] absolute -right-24 -top-24 bg-red-500/5 rounded-full blur-[80px] pointer-events-none"></div>
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-end">
               {/* Component Name */}
@@ -466,6 +497,79 @@ export default function DatabaseInputPage() {
               </table>
             </div>
           </div>
+
+          {/* AI Stock Prediction Recommendations Table Card */}
+          <div className="flex flex-col gap-4 mt-8">
+            <div className="flex items-center justify-between px-1">
+              <div className="flex items-center gap-2">
+                <div className="w-5 h-5 text-red-500 flex items-center justify-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                    <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+                    <polyline points="17 6 23 6 23 12"></polyline>
+                  </svg>
+                </div>
+                <h3 className="text-gray-300 text-sm font-bold font-mono uppercase tracking-wider">
+                  AI Stock Optimization Recommendations (ABC/XYZ & Min-Max ROP)
+                </h3>
+              </div>
+              <Link
+                href="/dashboard/manager/predictive"
+                className="text-red-500 hover:text-red-400 text-xs font-mono font-medium hover:underline flex items-center gap-1.5 transition-colors cursor-pointer"
+              >
+                <span>Predictive Console &rarr;</span>
+              </Link>
+            </div>
+
+            <div className="w-full bg-neutral-900 border border-zinc-800 rounded-2xl overflow-hidden shadow-2xl p-6">
+              <div className="overflow-x-auto w-full text-xs font-mono">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="border-b border-zinc-800 text-gray-500 text-[10px] uppercase font-bold">
+                      <th className="pb-3 px-4">SKU Code</th>
+                      <th className="pb-3 px-4">Component Name</th>
+                      <th className="pb-3 px-4">ABC Class</th>
+                      <th className="pb-3 px-4">XYZ Class</th>
+                      <th className="pb-3 px-4 text-center">Lead Time</th>
+                      <th className="pb-3 px-4 text-center">Rec. Min (ROP)</th>
+                      <th className="pb-3 px-4 text-right">Rec. Max</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {predictiveService.calculatePredictiveMetrics(inventoryItems).map((rec) => (
+                      <tr
+                        key={rec.sku}
+                        className="border-b border-zinc-800/50 text-neutral-400 hover:text-zinc-200 transition-colors"
+                      >
+                        <td className="py-3.5 px-4 text-red-500 font-semibold">{rec.sku}</td>
+                        <td className="py-3.5 px-4 font-sans text-gray-200">{rec.name}</td>
+                        <td className="py-3.5 px-4">
+                          <span className={`px-2 py-0.5 rounded text-[9px] font-bold border ${getAbcColor(rec.abcClass)}`}>
+                            {rec.abcClass}
+                          </span>
+                        </td>
+                        <td className="py-3.5 px-4">
+                          <span className={`px-2 py-0.5 rounded text-[9px] font-bold border ${getXyzColor(rec.xyzClass)}`}>
+                            {rec.xyzClass}
+                          </span>
+                        </td>
+                        <td className="py-3.5 px-4 text-center text-gray-400">{rec.leadTimeDays} days</td>
+                        <td className="py-3.5 px-4 text-center">
+                          <span className="px-2.5 py-1 bg-neutral-950 border border-zinc-850 rounded text-yellow-500 font-bold">
+                            {rec.dynamicMinROP}
+                          </span>
+                        </td>
+                        <td className="py-3.5 px-4 text-right">
+                          <span className="px-2.5 py-1 bg-neutral-950 border border-zinc-850 rounded text-green-500 font-bold">
+                            {rec.dynamicMax}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Divider line */}
@@ -503,9 +607,8 @@ export default function DatabaseInputPage() {
           {/* Machine Form Card */}
           <form
             onSubmit={handleAddMachine}
-            className="w-full bg-neutral-900 border border-zinc-800 rounded-2xl p-8 relative overflow-hidden shadow-2xl"
+            className="w-full bg-neutral-900 border border-zinc-800 rounded-2xl p-8 shadow-xl"
           >
-            <div className="w-[300px] h-[300px] absolute -left-24 -top-24 bg-blue-500/5 rounded-full blur-[80px] pointer-events-none"></div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-end">
               {/* Machine Name */}

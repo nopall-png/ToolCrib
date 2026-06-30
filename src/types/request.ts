@@ -17,6 +17,6 @@ export interface ProcessedRequisition {
   destination: string;
   documentName: string;
   quantity: number;
-  status: "PURCHASING" | "REJECTED" | "APPROVED";
+  status: "PURCHASING" | "REJECTED" | "APPROVED" | "DELIVERED" | "ONGOING" | "ON_SHIPMENT" | "DONE";
   dateProcessed: string;
 }

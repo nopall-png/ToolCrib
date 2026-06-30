@@ -34,9 +34,6 @@ export default function ControlPanelPage() {
             <span className="text-neutral-500 font-medium">Dashboard/</span>
             <span className="text-neutral-400 font-light text-xl">Control Panel</span>
           </div>
-          <div className="text-[10px] font-mono bg-neutral-900 border border-zinc-800 text-neutral-400 px-3 py-1.5 rounded-lg">
-            SYS NODE: CTRL_PNL_STAGE_1
-          </div>
         </div>
 
         {/* Main Grid Layout */}

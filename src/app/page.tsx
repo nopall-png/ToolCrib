@@ -2,23 +2,17 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { authService } from "@/services/authService";
 
 export default function Home() {
   const router = useRouter();
 
   useEffect(() => {
-    const isAuth = localStorage.getItem("isAuthenticated");
-    const userStr = localStorage.getItem("currentUser");
-
-    if (isAuth === "true" && userStr) {
-      try {
-        const user = JSON.parse(userStr);
-        if (user && user.role) {
-          router.push(`/dashboard/${user.role}`);
-        } else {
-          router.push("/auth/login");
-        }
-      } catch {
+    if (authService.isAuthenticated()) {
+      const user = authService.getCurrentUser();
+      if (user && user.role) {
+        router.push(`/dashboard/${user.role}`);
+      } else {
         router.push("/auth/login");
       }
     } else {

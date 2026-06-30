@@ -3,6 +3,7 @@
 import React from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Image from "next/image";
+import { useAuth } from "@/hooks/useAuth";
 
 interface SidebarProps {
   role?: string;
@@ -11,12 +12,11 @@ interface SidebarProps {
 export default function Sidebar({ role = "manager" }: SidebarProps) {
   const router = useRouter();
   const pathname = usePathname();
+  const { logout } = useAuth();
 
   const handleLogout = () => {
     if (confirm("Are you sure you want to initialize logout sequence?")) {
-      localStorage.removeItem("currentUser");
-      localStorage.removeItem("isAuthenticated");
-      router.push("/auth/login");
+      logout();
     }
   };
 
@@ -132,7 +132,35 @@ export default function Sidebar({ role = "manager" }: SidebarProps) {
         </svg>
       ),
     },
+    {
+      id: "predictive",
+      label: "Predictive AI",
+      path: `/dashboard/${role}/predictive`,
+      icon: (
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+          <polyline points="17 6 23 6 23 12"></polyline>
+        </svg>
+      ),
+    },
   ];
+
+  const filteredNavItems = navItems.filter((item) => {
+    if (role === "engineer" || role === "procurement") {
+      return item.id === "dashboard";
+    }
+    return true;
+  });
 
   return (
     <div className="w-28 shrink-0 flex flex-col items-center justify-between py-8 bg-neutral-900 rounded-[45px] border border-zinc-800 h-[817px] relative select-none">
@@ -151,7 +179,7 @@ export default function Sidebar({ role = "manager" }: SidebarProps) {
 
       {/* Navigation Stack */}
       <div className="flex flex-col gap-6 items-center">
-        {navItems.map((item) => {
+        {filteredNavItems.map((item) => {
           // Check if item path matches pathname
           const isActive = pathname === item.path;
           return (

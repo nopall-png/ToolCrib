@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { User } from "@/types/user";
+import { authService } from "@/services/authService";
 
 interface NavbarProps {
   onToggleChatbot: () => void;
@@ -12,15 +13,7 @@ export default function Navbar({ onToggleChatbot }: NavbarProps) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
   useEffect(() => {
-    const userStr = localStorage.getItem("currentUser");
-    if (userStr) {
-      try {
-        const parsedUser = JSON.parse(userStr);
-        setTimeout(() => {
-          setUser(parsedUser);
-        }, 0);
-      } catch {}
-    }
+    setUser(authService.getCurrentUser());
   }, []);
 
   // Format position or role for greetings
