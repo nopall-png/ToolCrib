@@ -22,3 +22,12 @@ export interface MachineryItem {
   aiPrediction: string;
   status: "Operational" | "Maintenance Required" | "Offline";
 }
+
+export interface MachineMaintenanceSchedule {
+  id: string;
+  name: string;
+  task: string;
+  date: string;
+  status: "SCHEDULED" | "URGENT" | "COMPLETED";
+  statusClass: string;
+}

@@ -19,4 +19,34 @@ export const auths: Auth[] = [
         username: "engineer",
         password: "engineer123",
     },
+    {
+        id: "AUTH-004",
+        userId: "USR-004",
+        username: "sarah",
+        password: "engineer123",
+    },
+    {
+        id: "AUTH-005",
+        userId: "USR-005",
+        username: "david",
+        password: "procurement123",
+    },
+    {
+        id: "AUTH-006",
+        userId: "USR-006",
+        username: "alex",
+        password: "engineer123",
+    },
+    {
+        id: "AUTH-007",
+        userId: "USR-007",
+        username: "michael",
+        password: "engineer123",
+    },
+    {
+        id: "AUTH-000",
+        userId: "USR-000",
+        username: "admin",
+        password: "manager123",
+    },
 ];
