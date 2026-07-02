@@ -46,9 +46,9 @@ export const predictiveService = {
         name: r.Description || r.SKU_ID,
         abcClass: r.ABC_Class,
         xyzClass: r.XYZ_Class,
-        unitPrice: 0, // Not provided directly, could be mapped if needed
+        unitPrice: r.Unit_Price || 0,
         leadTimeDays: 14,
-        yearlyQty: Math.round(r.Total_Annual_Value || 0),
+        yearlyQty: r.Total_Qty_Yearly || 0,
         dynamicMinROP: r.Dynamic_Min_ROP,
         dynamicMax: r.Dynamic_Max,
       }));

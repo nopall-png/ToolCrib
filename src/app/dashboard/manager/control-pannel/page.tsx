@@ -8,6 +8,7 @@ import Dropdown from "@/component/common/Dropdown";
 // Services Asli
 import { requestService } from "@/services/requestService";
 import { databaseService } from "@/services/databaseService";
+import { predictiveService, AIStockRecommendation } from "@/services/predictiveService";
 import { Requisition } from "@/types/request";
 import { InventoryItem, MachineryItem } from "@/types/database";
 
@@ -26,6 +27,7 @@ export default function ControlPanelPage() {
   });
   const [liveStockItems, setLiveStockItems] = useState<any[]>([]);
   const [liveHistory, setLiveHistory] = useState<any[]>([]);
+  const [aiAlerts, setAiAlerts] = useState<AIStockRecommendation[] | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -53,9 +55,9 @@ export default function ControlPanelPage() {
       const machines = await databaseService.getMachineryItems();
       const mappedMachines = machines.slice(0, 5).map(m => ({
         id: m.id,
-        customerName: m.name,
+        customerName: m.machineName,
         orderDate: m.lastMaintenance,
-        status: m.status === "HEALTHY" ? "done" : "TO BE DONE"
+        status: m.status === "Operational" ? "done" : "TO BE DONE"
       }));
       setLiveMaintenances(mappedMachines);
 
@@ -69,9 +71,9 @@ export default function ControlPanelPage() {
         totalStock += p.quantity;
         if (idx < 10) { // Ambil 10 teratas untuk chart
           chartItems.push({
-            name: p.name.split(" ")[0], // Ambil kata pertama saja biar muat
+            name: p.sku.split("-")[0], // Ambil kata pertama saja biar muat
             quantity: p.quantity,
-            isCritical: p.status === "CRITICAL"
+            isCritical: p.status === "OUT OF STOCK"
           });
         }
       });
@@ -82,6 +84,24 @@ export default function ControlPanelPage() {
         completedOrders: processed.length * 120, // Fake multiplier untuk visualisasi
       });
       setLiveStockItems(chartItems);
+
+      // 4. Fetch AI Predictive Alerts
+      try {
+        const metrics = await predictiveService.calculatePredictiveMetrics(parts);
+        // Filter barang yang stoknya berada di bawah atau sama dengan ROP (Butuh Restock)
+        const alerts = metrics.filter(m => {
+          const matchingPart = parts.find(p => p.sku === m.sku);
+          const currentStock = matchingPart ? matchingPart.quantity : 0;
+          return currentStock <= m.dynamicMinROP; 
+        });
+        
+        // Urutkan berdasarkan Kelas ABC (A prioritas utama)
+        alerts.sort((a, b) => a.abcClass.localeCompare(b.abcClass));
+        setAiAlerts(alerts.slice(0, 3)); // Ambil 3 teratas
+      } catch (err) {
+        console.error(err);
+        setAiAlerts([]);
+      }
     };
 
     fetchData();
@@ -317,10 +337,30 @@ export default function ControlPanelPage() {
             <div className="md:col-span-3">
               <Card title="AI Predictive Alerts" className="h-80">
                 <div className="flex flex-col gap-4">
-                  <div className="py-20 text-center flex flex-col items-center justify-center gap-2">
-                    <svg className="animate-spin text-red-500" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/></svg>
-                    <span className="text-neutral-500 font-mono text-[10px] uppercase">Connecting to Prophet Engine...</span>
-                  </div>
+                  {aiAlerts === null ? (
+                    <div className="py-20 text-center flex flex-col items-center justify-center gap-2">
+                      <svg className="animate-spin text-red-500" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/></svg>
+                      <span className="text-neutral-500 font-mono text-[10px] uppercase">Connecting to Prophet Engine...</span>
+                    </div>
+                  ) : aiAlerts.length === 0 ? (
+                    <div className="py-20 text-center text-neutral-500 font-mono text-[10px] uppercase">Stock is healthy. No critical alerts.</div>
+                  ) : (
+                    aiAlerts.map((alert, idx) => (
+                      <div key={idx} className="p-3 bg-red-950/20 border border-red-900/50 rounded-2xl flex items-center gap-3.5">
+                        <div className="w-12 h-12 bg-red-950/40 rounded-lg border border-red-900/50 flex justify-center items-center text-red-500 shrink-0">
+                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                        </div>
+                        <div className="flex-1 py-0.5 flex flex-col justify-between h-full min-w-0">
+                          <div className="flex justify-between items-start">
+                            <span className="px-2 py-0.5 rounded-full text-[8px] font-mono font-medium bg-red-500/10 text-red-500">CLASS {alert.abcClass}</span>
+                            <span className="text-red-400 text-xs font-mono font-medium">ROP: {alert.dynamicMinROP}</span>
+                          </div>
+                          <h4 className="text-zinc-200 text-xs font-semibold mt-1 font-sans truncate">{alert.name}</h4>
+                          <p className="text-neutral-400 text-[10px] font-mono mt-0.5 truncate">Needs restock to max: {alert.dynamicMax}</p>
+                        </div>
+                      </div>
+                    ))
+                  )}
                 </div>
               </Card>
             </div>
