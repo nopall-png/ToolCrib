@@ -279,21 +279,21 @@ export default function LoginPage() {
             <div>
               <span className="text-red-500/80">Manager:</span>
               <br />
-              ID: EMP-1001
+              ID: manager (EMP-001)
               <br />
               Key: manager123
             </div>
             <div>
               <span className="text-red-500/80">Procurement:</span>
               <br />
-              ID: EMP-1002
+              ID: procurement (EMP-002)
               <br />
               Key: procurement123
             </div>
             <div>
               <span className="text-red-500/80">Engineer:</span>
               <br />
-              ID: EMP-1003
+              ID: engineer (EMP-003)
               <br />
               Key: engineer123
             </div>
