@@ -1,3 +1,9 @@
+export interface RequestItem {
+  sku: string;
+  part_name: string;
+  quantity: number;
+}
+
 export interface Requisition {
   id: string;
   date: string;
@@ -9,6 +15,7 @@ export interface Requisition {
   documentName: string;
   documentSize: string;
   urgency: "CRITICAL" | "HIGH" | "NORMAL";
+  items?: RequestItem[];
 }
 
 export interface ProcessedRequisition {
@@ -19,4 +26,5 @@ export interface ProcessedRequisition {
   quantity: number;
   status: "PURCHASING" | "REJECTED" | "APPROVED" | "DELIVERED" | "ONGOING" | "ON_SHIPMENT" | "DONE";
   dateProcessed: string;
+  items?: RequestItem[];
 }

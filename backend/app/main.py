@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 import uuid
 
 from app.database import get_db
-from app.models import Role, User, SparePart, InventoryTransaction, Machine, SparepartRequest
+from app.models import Role, User, SparePart, InventoryTransaction, Machine, SparepartRequest, SparepartRequestItem
 from app.schemas import LoginRequest, SparePartCreate, MachineCreate, RequestCreate, RequestStatusUpdate, UserCreate
 # Kita undang Koki AI kita masuk ke dapur utama
 from app.ai.engine import ToolCribPredictiveEngine
@@ -121,20 +121,45 @@ def get_all_requests(db: Session = Depends(get_db)):
     results = []
     for r in reqs:
         user = db.query(User).filter(User.id == r.requestor_id).first()
-        part = db.query(SparePart).filter(SparePart.sku == r.sku).first()
         machine = db.query(Machine).filter(Machine.machine_id == r.machine_id).first()
+        
+        # Ambil daftar barang dari tabel detail
+        items_db = db.query(SparepartRequestItem).filter(SparepartRequestItem.request_id == r.request_id).all()
+        items_list = []
+        total_quantity = 0
+        part_names = []
+        
+        for item in items_db:
+            part = db.query(SparePart).filter(SparePart.sku == item.sku).first()
+            p_name = part.part_name if part else item.sku
+            part_names.append(p_name)
+            total_quantity += item.quantity
+            items_list.append({
+                "sku": item.sku,
+                "part_name": p_name,
+                "quantity": item.quantity
+            })
+            
+        # Format ringkasan nama barang untuk UI lama
+        if len(part_names) == 1:
+            display_name = part_names[0]
+        elif len(part_names) > 1:
+            display_name = f"{part_names[0]} + {len(part_names)-1} other(s)"
+        else:
+            display_name = "Unknown"
         
         results.append({
             "request_id": r.request_id,
-            "quantity": r.quantity,
+            "quantity": total_quantity,
             "urgency": r.urgency,
             "document_url": r.document_url,
             "approval_status": r.approval_status,
             "created_at": str(r.created_at)[:19] if r.created_at else "",
             "requestor_name": user.full_name if user else "System",
             "requestor_shift": user.department_shift if user else "General",
-            "part_name": part.part_name if part else r.sku,
-            "machine_name": machine.machine_name if machine else r.machine_id
+            "part_name": display_name,
+            "machine_name": machine.machine_name if machine else r.machine_id,
+            "items": items_list # Disisipkan untuk Accordion di UI baru
         })
     return {"status": "SUCCESS", "data": results}
 
@@ -155,7 +180,7 @@ def ai_detect_duplicates(threshold: float = 0.60, db: Session = Depends(get_db))
     # 1. Terjemahkan objek Postgres jadi tabel Pandas
     df_sku = pd.DataFrame([{
         "SKU_ID": p.sku,
-        "Description": p.part_name # <--- Operasi plastik nama kolom agar Koki AI paham
+        "Description": f"{p.part_name} {p.category or ''} {p.specifications or ''}".strip() # <--- Operasi plastik nama kolom agar Koki AI paham
     } for p in parts])
 
     # 2. Suapkan ke Koki AI
@@ -186,7 +211,8 @@ def ai_abc_xyz_analysis(db: Session = Depends(get_db)):
         "SKU_ID": p.sku,
         "Description": p.part_name,
         "Unit_Price": float(p.unit_price if p.unit_price else 0),
-        "Lead_Time_Days": 14 # <--- Suntikan default angka pengiriman vendor
+        "Lead_Time_Days": p.lead_time_days if p.lead_time_days else 14, # <--- Ambil dari DB, default 14
+        "Criticality_Level": p.criticality_level or "MEDIUM"
     } for p in parts])
 
     # Terjemahkan Log Transaksi
@@ -233,6 +259,97 @@ def ai_forecast_sku(target_sku: str, days_ahead: int = 30, db: Session = Depends
         "target_sku": target_sku,
         "forecast_period_days": days_ahead,
         "predictions": result_df.to_dict(orient="records")
+    }
+
+
+# ---------------------------------------------------------------------
+# AI SIHIR 4: Klasifikasi Kekritisan Suku Cadang (Critical Spare Engine)
+# ---------------------------------------------------------------------
+@app.get("/api/v1/ai/critical-spare-classification", tags=["AI Predictive Engine"])
+def ai_critical_spare_classification(db: Session = Depends(get_db)):
+    parts = db.query(SparePart).all()
+    trxs = db.query(InventoryTransaction).all()
+    machines = db.query(Machine).all()
+
+    if not parts or not trxs:
+        raise HTTPException(status_code=400, detail="Data Master Barang atau Log Transaksi masih kosong!")
+
+    df_sku = pd.DataFrame([{
+        "SKU_ID": p.sku,
+        "Description": p.part_name,
+        "Unit_Price": float(p.unit_price if p.unit_price else 0),
+        "Lead_Time_Days": p.lead_time_days if p.lead_time_days else 14,
+    } for p in parts])
+
+    df_trx = pd.DataFrame([{
+        "SKU_ID": t.sku,
+        "Date": t.transaction_date,
+        "Quantity_Issued": t.quantity
+    } for t in trxs])
+
+    df_machines = pd.DataFrame([{
+        "Machine_ID": m.machine_id,
+        "Machine_Name": m.machine_name,
+        "Required_Parts": m.required_spare_parts or [],
+        "Downtime_Impact": m.downtime_impact or "MEDIUM",
+        "Status": m.status or "HEALTHY",
+    } for m in machines])
+
+    engine: ToolCribPredictiveEngine = ml_models["predictive_engine"]
+    result_df = engine.classify_critical_spares(df_sku, df_trx, df_machines)
+
+    return {
+        "status": "SUCCESS",
+        "total_sku_analyzed": len(result_df),
+        "data": result_df.to_dict(orient="records")
+    }
+
+
+# ---------------------------------------------------------------------
+# AI SIHIR 5: Peluang Optimasi Inventaris & Pembelian
+# ---------------------------------------------------------------------
+@app.get("/api/v1/ai/optimization-opportunities", tags=["AI Predictive Engine"])
+def ai_optimization_opportunities(db: Session = Depends(get_db)):
+    parts = db.query(SparePart).all()
+    trxs = db.query(InventoryTransaction).all()
+
+    if not parts or not trxs:
+        raise HTTPException(status_code=400, detail="Data Master Barang atau Log Transaksi masih kosong!")
+
+    df_sku = pd.DataFrame([{
+        "SKU_ID": p.sku,
+        "Description": p.part_name,
+        "Unit_Price": float(p.unit_price if p.unit_price else 0),
+        "Lead_Time_Days": p.lead_time_days if p.lead_time_days else 14,
+        "Criticality_Level": p.criticality_level or "MEDIUM",
+        "Current_Stock": int(p.current_stock if p.current_stock else 0),
+    } for p in parts])
+
+    df_trx = pd.DataFrame([{
+        "SKU_ID": t.sku,
+        "Date": t.transaction_date,
+        "Quantity_Issued": t.quantity
+    } for t in trxs])
+
+    engine: ToolCribPredictiveEngine = ml_models["predictive_engine"]
+    result_df = engine.generate_optimization_opportunities(df_sku, df_trx)
+
+    overstock_count = len(result_df[result_df['Action'] == 'OVERSTOCK'])
+    understock_count = len(result_df[result_df['Action'] == 'UNDERSTOCK'])
+    slow_moving_count = len(result_df[result_df['Action'] == 'SLOW_MOVING'])
+    total_excess_value = float(result_df['Excess_Value'].sum())
+    total_shortage_value = float(result_df['Shortage_Value'].sum())
+
+    return {
+        "status": "SUCCESS",
+        "summary": {
+            "overstock_count": overstock_count,
+            "understock_count": understock_count,
+            "slow_moving_count": slow_moving_count,
+            "total_excess_value": total_excess_value,
+            "total_shortage_value": total_shortage_value,
+        },
+        "data": result_df.to_dict(orient="records")
     }
 
 
@@ -385,11 +502,18 @@ def delete_machine(machine_id: str, db: Session = Depends(get_db)):
 # ---------------------------------------------------------------------
 @app.post("/api/v1/requests", tags=["Approval Bureaucracy"])
 def create_request(data: RequestCreate, db: Session = Depends(get_db)):
-    # Validasi SKU dan Mesin
-    part = db.query(SparePart).filter(SparePart.sku == data.sku).first()
+    # Validasi Mesin
     machine = db.query(Machine).filter(Machine.machine_id == data.machine_id).first()
-    if not part or not machine:
-        raise HTTPException(status_code=400, detail="Invalid SKU or Machine ID")
+    if not machine:
+        raise HTTPException(status_code=400, detail="Invalid Machine ID")
+        
+    # Validasi bahwa semua SKU valid
+    if not data.items:
+        raise HTTPException(status_code=400, detail="Keranjang barang tidak boleh kosong!")
+    for item in data.items:
+        part = db.query(SparePart).filter(SparePart.sku == item.sku).first()
+        if not part:
+            raise HTTPException(status_code=400, detail=f"Invalid SKU: {item.sku}")
         
     # Ambil user admin/default untuk requestor
     default_user = db.query(User).first()
@@ -400,16 +524,26 @@ def create_request(data: RequestCreate, db: Session = Depends(get_db)):
     new_request = SparepartRequest(
         request_id=new_req_id,
         requestor_id=default_user.id,
-        sku=data.sku,
         machine_id=data.machine_id,
-        quantity=data.quantity,
         document_url=data.document_url,
-        approval_status="PENDING"
+        approval_status="PENDING",
+        request_type=data.request_type,
+        urgency=data.urgency
     )
     db.add(new_request)
+    
+    # Simpan rincian barang
+    for item in data.items:
+        new_item = SparepartRequestItem(
+            request_id=new_req_id,
+            sku=item.sku,
+            quantity=item.quantity
+        )
+        db.add(new_item)
+
     db.commit()
     db.refresh(new_request)
-    return {"status": "SUCCESS", "data": new_request}
+    return {"status": "SUCCESS", "data": {"request_id": new_req_id, "total_items": len(data.items)}}
 
 
 # ---------------------------------------------------------------------
@@ -423,23 +557,33 @@ def update_request_status(request_id: str, data: RequestStatusUpdate, db: Sessio
         
     req.approval_status = data.approval_status
     
-    # [NEW LOGIC] - Auto Restock & AI Transaction Logging
-    if data.approval_status in ["DONE", "DELIVERED"]:
-        part = db.query(SparePart).filter(SparePart.sku == req.sku).first()
-        if part:
-            # 1. Tambah stok barang di gudang
-            part.current_stock += req.quantity
-            
-            # 2. Catat log transaksi agar AI Engine bisa belajar
-            trx = InventoryTransaction(
-                transaction_type="IN",
-                quantity=req.quantity,
-                notes=f"Restocked from Procurement Request {request_id}",
-                sku=req.sku,
-                user_id=req.requestor_id
-            )
-            db.add(trx)
+    # [NEW LOGIC] - Auto Restock / Consume & AI Transaction Logging untuk semua item
+    if data.approval_status in ["DONE", "DELIVERED", "APPROVED"]:
+        items = db.query(SparepartRequestItem).filter(SparepartRequestItem.request_id == request_id).all()
+        for item in items:
+            part = db.query(SparePart).filter(SparePart.sku == item.sku).first()
+            if part:
+                if req.request_type == "PROCUREMENT":
+                    # Minta barang ke vendor (tambah stok)
+                    part.current_stock += item.quantity
+                    trx_type = "IN"
+                    notes = f"Restocked from Procurement Request {request_id}"
+                else:
+                    # Ambil barang dari gudang (kurangi stok)
+                    part.current_stock -= item.quantity
+                    trx_type = "OUT"
+                    notes = f"Consumed by Request {request_id} for Machine {req.machine_id}"
+
+                # Buat log transaksi untuk AI
+                trx = InventoryTransaction(
+                    transaction_type=trx_type,
+                    quantity=item.quantity,
+                    notes=notes,
+                    sku=item.sku,
+                    user_id=req.requestor_id
+                )
+                db.add(trx)
             
     db.commit()
     db.refresh(req)
-    return {"status": "SUCCESS", "data": req}
+    return {"status": "SUCCESS", "data": req.request_id}

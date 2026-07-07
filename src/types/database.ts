@@ -24,7 +24,17 @@ export interface MachineryItem {
   lastMaintenance: string;
   standardSchedule: string;
   aiPrediction: string;
-  status: "Operational" | "Maintenance Required" | "Offline";
+  status: "Operational" | "Maintenance Required" | "Offline" | "HEALTHY" | "WARNING" | "CRITICAL";
+  downtimeImpact?: string;
+}
+
+export interface TransactionItem {
+  id: string;
+  sku: string;
+  transactionType: string;
+  quantity: number;
+  transactionDate: string;
+  notes: string;
 }
 
 export interface MachineMaintenanceSchedule {

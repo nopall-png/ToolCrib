@@ -10,7 +10,7 @@ import { requestService } from "@/services/requestService";
 import { databaseService } from "@/services/databaseService";
 import { predictiveService, AIStockRecommendation } from "@/services/predictiveService";
 import { Requisition } from "@/types/request";
-import { InventoryItem, MachineryItem } from "@/types/database";
+import { InventoryItem, MachineryItem, TransactionItem } from "@/types/database";
 
 export default function ControlPanelPage() {
   const [orderFilter, setOrderFilter] = useState("monthly");
@@ -37,27 +37,19 @@ export default function ControlPanelPage() {
       const mappedOrders = pending.slice(0, 5).map(req => ({
         id: req.id,
         customerName: req.requestor,
-        orderDate: req.date.split(" ")[0], // Ambil tanggal saja
+        orderDate: req.date.split(" ")[0],
         status: "Processing"
       }));
       setLiveOrders(mappedOrders);
 
-      const mappedHistory = processed.slice(0, 3).map((req, idx) => ({
-        id: req.id,
-        title: req.itemName,
-        quantityInfo: `${req.quantity} units ${req.status.toLowerCase()}`,
-        timeAgo: idx === 0 ? "1 Day Ago" : "3 Days Ago",
-        image: null,
-      }));
-      setLiveHistory(mappedHistory);
-
-      // 2. Fetch Machines (Untuk Scheduled Maintenance)
+      // 2. Fetch Machines (Untuk Factory Machinery Status)
       const machines = await databaseService.getMachineryItems();
-      const mappedMachines = machines.slice(0, 5).map(m => ({
+      const mappedMachines = machines.slice(0, 10).map(m => ({
         id: m.id,
         customerName: m.machineName,
         orderDate: m.lastMaintenance,
-        status: m.status === "Operational" ? "done" : "TO BE DONE"
+        status: m.status,
+        downtimeImpact: m.downtimeImpact || "MEDIUM"
       }));
       setLiveMaintenances(mappedMachines);
 
@@ -65,39 +57,69 @@ export default function ControlPanelPage() {
       const parts = await databaseService.getInventoryItems();
       
       let totalStock = 0;
+      let totalValue = 0;
       const chartItems: any[] = [];
       
-      parts.forEach((p, idx) => {
+      // Sort by quantity ascending so critical items appear first
+      const sortedParts = [...parts].sort((a, b) => a.quantity - b.quantity);
+      const maxQty = Math.max(...parts.map(p => p.quantity), 1);
+      
+      sortedParts.forEach((p, idx) => {
         totalStock += p.quantity;
-        if (idx < 10) { // Ambil 10 teratas untuk chart
+        if (idx < 12) {
           chartItems.push({
-            name: p.sku.split("-")[0], // Ambil kata pertama saja biar muat
+            name: p.sku,
+            partName: p.name,
             quantity: p.quantity,
-            isCritical: p.status === "OUT OF STOCK"
+            maxQty: maxQty,
+            isCritical: p.status === "OUT OF STOCK" || p.status === "LOW STOCK"
           });
         }
       });
       
       setLiveStockSummary({
         currentStock: totalStock,
-        replenishedStock: Math.round(totalStock * 1.5),
-        completedOrders: processed.length * 120, // Fake multiplier untuk visualisasi
+        replenishedStock: totalStock, // Will show total units
+        completedOrders: processed.length,
       });
       setLiveStockItems(chartItems);
 
-      // 4. Fetch AI Predictive Alerts
+      // 4. Fetch Recent Transactions
+      const transactions = await databaseService.getInventoryTransactions(5);
+      const mappedHistory = transactions.map((trx) => {
+        const matchingPart = parts.find(p => p.sku === trx.sku);
+        const partName = matchingPart ? matchingPart.name : trx.sku;
+        
+        // Calculate relative time
+        const trxDate = new Date(trx.transactionDate);
+        const now = new Date();
+        const diffDays = Math.floor((now.getTime() - trxDate.getTime()) / (1000 * 60 * 60 * 24));
+        let timeAgo = "Today";
+        if (diffDays === 1) timeAgo = "1 Day Ago";
+        else if (diffDays > 1 && diffDays < 30) timeAgo = `${diffDays} Days Ago`;
+        else if (diffDays >= 30) timeAgo = `${Math.floor(diffDays / 30)} Month(s) Ago`;
+        
+        return {
+          id: trx.id,
+          title: partName,
+          quantityInfo: `${trx.quantity} units ${trx.transactionType}`,
+          timeAgo: timeAgo,
+          type: trx.transactionType,
+        };
+      });
+      setLiveHistory(mappedHistory);
+
+      // 5. Fetch AI Predictive Alerts
       try {
         const metrics = await predictiveService.calculatePredictiveMetrics(parts);
-        // Filter barang yang stoknya berada di bawah atau sama dengan ROP (Butuh Restock)
         const alerts = metrics.filter(m => {
           const matchingPart = parts.find(p => p.sku === m.sku);
           const currentStock = matchingPart ? matchingPart.quantity : 0;
           return currentStock <= m.dynamicMinROP; 
         });
         
-        // Urutkan berdasarkan Kelas ABC (A prioritas utama)
         alerts.sort((a, b) => a.abcClass.localeCompare(b.abcClass));
-        setAiAlerts(alerts.slice(0, 3)); // Ambil 3 teratas
+        setAiAlerts(alerts.slice(0, 3));
       } catch (err) {
         console.error(err);
         setAiAlerts([]);
@@ -208,16 +230,32 @@ export default function ControlPanelPage() {
                       </tr>
                     </thead>
                     <tbody>
-                      {liveMaintenances.map((maint, idx) => (
+                      {liveMaintenances.map((maint, idx) => {
+                      const statusColor = maint.status === "HEALTHY" 
+                        ? "text-green-500" 
+                        : maint.status === "WARNING" 
+                        ? "text-yellow-500" 
+                        : maint.status === "CRITICAL" 
+                        ? "text-red-500 animate-pulse" 
+                        : "text-gray-400";
+                      const impactBadge = maint.downtimeImpact === "HIGH"
+                        ? "bg-red-500/10 text-red-400 border-red-500/20"
+                        : maint.downtimeImpact === "MEDIUM"
+                        ? "bg-yellow-500/10 text-yellow-400 border-yellow-500/20"
+                        : "bg-green-500/10 text-green-400 border-green-500/20";
+                      return (
                         <tr key={idx} className="border-b border-zinc-800/40 text-neutral-400 hover:text-zinc-200 transition-colors">
                           <td className="py-3 font-normal font-mono">{maint.id}</td>
                           <td className="py-3 font-medium text-zinc-300">{maint.customerName}</td>
                           <td className="py-3 font-normal font-mono">{maint.orderDate}</td>
-                          <td className={`py-3 font-medium ${maint.status === "done" ? "text-green-500" : "text-red-500 font-mono text-[10px] uppercase"}`}>
-                            {maint.status}
+                          <td className="py-3">
+                            <span className={`${statusColor} font-bold text-[10px] uppercase tracking-wider`}>
+                              {maint.status}
+                            </span>
                           </td>
                         </tr>
-                      ))}
+                      );
+                    })}
                     </tbody>
                   </table>
                 )}
@@ -291,11 +329,14 @@ export default function ControlPanelPage() {
                         <div className="w-full text-center text-neutral-600 font-mono text-[10px] mt-10">No items found in DB.</div>
                       ) : (
                         liveStockItems.map((item, idx) => {
-                          const heightClass = item.quantity > 500 ? "h-20" : item.quantity > 200 ? "h-14" : item.quantity > 50 ? "h-8" : "h-4";
+                          const heightPercent = Math.max(5, (item.quantity / item.maxQty) * 100);
                           return (
-                            <div key={idx} className="flex flex-col items-center gap-1 group relative">
-                              <div className={`w-4 rounded-t-sm transition-all duration-300 ${heightClass} ${item.isCritical ? "bg-red-500" : "bg-neutral-600 group-hover:bg-neutral-400"}`}></div>
-                              <span className="text-[8px] font-mono text-neutral-400 font-semibold truncate max-w-[40px] px-1">{item.name}</span>
+                            <div key={idx} className="flex flex-col items-center gap-1 group relative" title={`${item.partName}: ${item.quantity} units`}>
+                              <div 
+                                className={`w-4 rounded-t-sm transition-all duration-500 ${item.isCritical ? "bg-red-500" : "bg-neutral-600 group-hover:bg-blue-400"}`}
+                                style={{ height: `${heightPercent}%`, minHeight: '4px' }}
+                              ></div>
+                              <span className="text-[7px] font-mono text-neutral-500 font-semibold truncate max-w-[40px] px-0.5">{item.name.split("-").slice(1).join("-")}</span>
                             </div>
                           );
                         })
@@ -316,12 +357,25 @@ export default function ControlPanelPage() {
                   ) : (
                     liveHistory.map((history, idx) => (
                       <div key={idx} className="p-3 bg-neutral-950/40 border border-zinc-900 rounded-2xl flex items-center gap-3.5">
-                        <div className="w-14 h-14 bg-zinc-900 rounded-lg border border-zinc-800 flex justify-center items-center text-blue-500 shrink-0">
-                          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+                        <div className={`w-14 h-14 rounded-lg border flex justify-center items-center shrink-0 ${
+                          history.type === "OUT" 
+                            ? "bg-red-950/40 border-red-900/50 text-red-500" 
+                            : "bg-green-950/40 border-green-900/50 text-green-500"
+                        }`}>
+                          {history.type === "OUT" ? (
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="5" x2="12" y2="19"></line><polyline points="19 12 12 19 5 12"></polyline></svg>
+                          ) : (
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>
+                          )}
                         </div>
                         <div className="flex-1 py-0.5 flex flex-col justify-between h-full min-w-0">
                           <div className="flex justify-between items-start">
-                            <span className="px-2 py-0.5 rounded-full text-[8px] font-mono font-medium bg-green-500/10 text-green-500">{history.timeAgo}</span>
+                            <span className={`px-2 py-0.5 rounded-full text-[8px] font-mono font-medium ${
+                              history.type === "OUT" ? "bg-red-500/10 text-red-400" : "bg-green-500/10 text-green-500"
+                            }`}>{history.timeAgo}</span>
+                            <span className={`text-[10px] font-mono font-bold ${
+                              history.type === "OUT" ? "text-red-400" : "text-green-400"
+                            }`}>{history.type === "OUT" ? "ISSUED" : "RECEIVED"}</span>
                           </div>
                           <h4 className="text-zinc-200 text-xs font-semibold mt-1 font-sans truncate">{history.title}</h4>
                           <p className="text-neutral-400 text-[10px] font-mono mt-0.5 truncate">{history.quantityInfo}</p>

@@ -9,10 +9,13 @@ import {
   AIStockRecommendation,
   DuplicateSkuResult,
   ForecastPoint,
+  CriticalSpareResult,
+  OptimizationItem,
+  OptimizationSummary,
 } from "@/services/predictiveService";
 
 export default function PredictivePage() {
-  const [activeTab, setActiveTab] = useState<"matrix" | "duplicates" | "forecast">("matrix");
+  const [activeTab, setActiveTab] = useState<"matrix" | "duplicates" | "forecast" | "critical" | "optimization">("matrix");
   const [inventoryItems, setInventoryItems] = useState<InventoryItem[]>([]);
   const [metrics, setMetrics] = useState<AIStockRecommendation[]>([]);
   
@@ -23,6 +26,15 @@ export default function PredictivePage() {
   // Forecasting states
   const [selectedSku, setSelectedSku] = useState("");
   const [forecastData, setForecastData] = useState<ForecastPoint[]>([]);
+
+  // Critical Spare states
+  const [criticalSpares, setCriticalSpares] = useState<CriticalSpareResult[]>([]);
+  const [loadingCritical, setLoadingCritical] = useState(false);
+
+  // Optimization states
+  const [optimizationData, setOptimizationData] = useState<OptimizationItem[]>([]);
+  const [optimizationSummary, setOptimizationSummary] = useState<OptimizationSummary | null>(null);
+  const [loadingOptimization, setLoadingOptimization] = useState(false);
 
   const [loadingMetrics, setLoadingMetrics] = useState(false);
   const [loadingDuplicates, setLoadingDuplicates] = useState(false);
@@ -304,7 +316,7 @@ export default function PredictivePage() {
               activeTab === "matrix" ? "text-white" : "text-zinc-500 hover:text-zinc-300"
             }`}
           >
-            ABC/XYZ Matrix & ROP
+            Inventory Value & Stability
             {activeTab === "matrix" && (
               <span className="absolute bottom-0 left-0 w-full h-[1.5px] bg-white rounded"></span>
             )}
@@ -331,6 +343,47 @@ export default function PredictivePage() {
               <span className="absolute bottom-0 left-0 w-full h-[1.5px] bg-white rounded"></span>
             )}
           </button>
+          <button
+            onClick={() => {
+              setActiveTab("critical");
+              if (criticalSpares.length === 0) {
+                setLoadingCritical(true);
+                predictiveService.classifyCriticalSpares().then((data) => {
+                  setCriticalSpares(data);
+                  setLoadingCritical(false);
+                });
+              }
+            }}
+            className={`pb-2.5 text-xs font-semibold tracking-wider transition-colors cursor-pointer relative ${
+              activeTab === "critical" ? "text-white" : "text-zinc-500 hover:text-zinc-300"
+            }`}
+          >
+            Critical Spare Engine
+            {activeTab === "critical" && (
+              <span className="absolute bottom-0 left-0 w-full h-[1.5px] bg-white rounded"></span>
+            )}
+          </button>
+          <button
+            onClick={() => {
+              setActiveTab("optimization");
+              if (optimizationData.length === 0) {
+                setLoadingOptimization(true);
+                predictiveService.getOptimizationOpportunities().then(({ summary, data }) => {
+                  setOptimizationSummary(summary);
+                  setOptimizationData(data);
+                  setLoadingOptimization(false);
+                });
+              }
+            }}
+            className={`pb-2.5 text-xs font-semibold tracking-wider transition-colors cursor-pointer relative ${
+              activeTab === "optimization" ? "text-white" : "text-zinc-500 hover:text-zinc-300"
+            }`}
+          >
+            Optimization
+            {activeTab === "optimization" && (
+              <span className="absolute bottom-0 left-0 w-full h-[1.5px] bg-white rounded"></span>
+            )}
+          </button>
         </div>
 
         {/* TAB CONTENTS */}
@@ -341,8 +394,8 @@ export default function PredictivePage() {
             
             {/* Minimal Legend Info */}
             <div className="flex flex-wrap gap-x-6 gap-y-2 text-[10px] text-zinc-500 font-mono bg-zinc-900/30 border border-zinc-850 p-3 rounded-lg">
-              <div><strong className="text-zinc-400">ABC:</strong> A (High value contribution), B (Medium), C (Low)</div>
-              <div><strong className="text-zinc-400">XYZ:</strong> X (Stable demand), Y (Volatile), Z (Highly erratic)</div>
+              <div><strong className="text-zinc-400">Value Priority:</strong> A (High value contribution), B (Medium), C (Low)</div>
+              <div><strong className="text-zinc-400">Demand Stability:</strong> X (Stable demand), Y (Volatile), Z (Highly erratic)</div>
             </div>
 
             {/* Minimalist Table */}
@@ -359,8 +412,8 @@ export default function PredictivePage() {
                     <tr className="border-b border-zinc-800 text-zinc-500 text-[10px] uppercase font-bold bg-zinc-950/40">
                       <th className="py-3 px-4">SKU</th>
                       <th className="py-3 px-4">Item Name</th>
-                      <th className="py-3 px-4">ABC</th>
-                      <th className="py-3 px-4">XYZ</th>
+                      <th className="py-3 px-4">Value Priority</th>
+                      <th className="py-3 px-4">Demand Stability</th>
                       <th className="py-3 px-4 text-center">Unit Price</th>
                       <th className="py-3 px-4 text-center">Lead Time</th>
                       <th className="py-3 px-4 text-center">Yearly Demand</th>
@@ -513,6 +566,173 @@ export default function PredictivePage() {
               <div className="flex items-center gap-1.5">
                 <span className="w-4 h-2 bg-zinc-800/50 block"></span>
                 <span>95% Confidence Area</span>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Tab 4: Critical Spare Classification */}
+        {activeTab === "critical" && (
+          <div className="flex flex-col gap-6">
+            <div className="flex flex-wrap gap-x-6 gap-y-2 text-[10px] text-zinc-500 font-mono bg-zinc-900/30 border border-zinc-850 p-3 rounded-lg">
+              <div><strong className="text-zinc-400">Scoring Formula:</strong> Usage (35%) + Lead Time (25%) + Machine Downtime Impact (40%)</div>
+              <div><strong className="text-red-400">CRITICAL</strong> ≥ 70 | <strong className="text-yellow-400">IMPORTANT</strong> ≥ 40 | <strong className="text-green-400">STANDARD</strong> &lt; 40</div>
+            </div>
+
+            <div className="w-full bg-neutral-900 border border-zinc-800 rounded-xl overflow-hidden relative min-h-[300px]">
+              {loadingCritical ? (
+                <div className="absolute inset-0 flex flex-col items-center justify-center bg-neutral-900/80 backdrop-blur-sm z-10 gap-4">
+                  <svg className="animate-spin text-orange-500" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/></svg>
+                  <span className="text-orange-500 font-mono text-[10px] uppercase font-bold tracking-widest">Analyzing Machine Criticality & Usage Patterns...</span>
+                </div>
+              ) : null}
+              <div className="overflow-x-auto w-full text-xs font-mono">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="border-b border-zinc-800 text-zinc-500 text-[10px] uppercase font-bold bg-zinc-950/40">
+                      <th className="py-3 px-4">SKU</th>
+                      <th className="py-3 px-4">Item Name</th>
+                      <th className="py-3 px-4 text-center">Usage Score</th>
+                      <th className="py-3 px-4 text-center">Lead Time Score</th>
+                      <th className="py-3 px-4 text-center">Machine Score</th>
+                      <th className="py-3 px-4 text-center">Composite Score</th>
+                      <th className="py-3 px-4 text-center">Classification</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {criticalSpares.map((item) => {
+                      const classColor = item.criticalityClass === "CRITICAL"
+                        ? "bg-red-500/10 text-red-400 border border-red-500/20"
+                        : item.criticalityClass === "IMPORTANT"
+                        ? "bg-yellow-500/10 text-yellow-400 border border-yellow-500/20"
+                        : "bg-green-500/10 text-green-400 border border-green-500/20";
+                      return (
+                        <tr key={item.sku} className="border-b border-zinc-800/40 text-zinc-400 hover:text-zinc-200 transition-colors">
+                          <td className="py-3 px-4 text-zinc-300 font-medium">{item.sku}</td>
+                          <td className="py-3 px-4 font-sans text-zinc-300">{item.name}</td>
+                          <td className="py-3 px-4 text-center">
+                            <div className="flex items-center gap-2 justify-center">
+                              <div className="w-16 h-1.5 bg-zinc-800 rounded-full overflow-hidden">
+                                <div className="h-full bg-blue-500 rounded-full" style={{ width: `${item.usageScore}%` }}></div>
+                              </div>
+                              <span className="text-[10px]">{item.usageScore}</span>
+                            </div>
+                          </td>
+                          <td className="py-3 px-4 text-center">
+                            <div className="flex items-center gap-2 justify-center">
+                              <div className="w-16 h-1.5 bg-zinc-800 rounded-full overflow-hidden">
+                                <div className="h-full bg-amber-500 rounded-full" style={{ width: `${item.leadTimeScore}%` }}></div>
+                              </div>
+                              <span className="text-[10px]">{item.leadTimeScore}</span>
+                            </div>
+                          </td>
+                          <td className="py-3 px-4 text-center">
+                            <div className="flex items-center gap-2 justify-center">
+                              <div className="w-16 h-1.5 bg-zinc-800 rounded-full overflow-hidden">
+                                <div className="h-full bg-purple-500 rounded-full" style={{ width: `${item.machineScore}%` }}></div>
+                              </div>
+                              <span className="text-[10px]">{item.machineScore}</span>
+                            </div>
+                          </td>
+                          <td className="py-3 px-4 text-center font-bold text-zinc-200">{item.compositeScore}</td>
+                          <td className="py-3 px-4 text-center">
+                            <span className={`px-2 py-0.5 rounded text-[9px] font-bold ${classColor}`}>
+                              {item.criticalityClass}
+                            </span>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Tab 5: Optimization Opportunities */}
+        {activeTab === "optimization" && (
+          <div className="flex flex-col gap-6">
+            
+            {/* Summary Cards */}
+            {optimizationSummary && (
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="p-4 bg-red-950/20 border border-red-900/30 rounded-xl">
+                  <div className="text-red-400 text-[10px] font-mono uppercase font-bold">Overstock Items</div>
+                  <div className="text-white text-2xl font-bold mt-1">{optimizationSummary.overstockCount}</div>
+                  <div className="text-red-400/60 text-[10px] font-mono mt-1">Excess Value: Rp {optimizationSummary.totalExcessValue.toLocaleString()}</div>
+                </div>
+                <div className="p-4 bg-yellow-950/20 border border-yellow-900/30 rounded-xl">
+                  <div className="text-yellow-400 text-[10px] font-mono uppercase font-bold">Understock Items</div>
+                  <div className="text-white text-2xl font-bold mt-1">{optimizationSummary.understockCount}</div>
+                  <div className="text-yellow-400/60 text-[10px] font-mono mt-1">Shortage Value: Rp {optimizationSummary.totalShortageValue.toLocaleString()}</div>
+                </div>
+                <div className="p-4 bg-orange-950/20 border border-orange-900/30 rounded-xl">
+                  <div className="text-orange-400 text-[10px] font-mono uppercase font-bold">Slow-Moving</div>
+                  <div className="text-white text-2xl font-bold mt-1">{optimizationSummary.slowMovingCount}</div>
+                  <div className="text-orange-400/60 text-[10px] font-mono mt-1">Class C + Z: Review needed</div>
+                </div>
+                <div className="p-4 bg-green-950/20 border border-green-900/30 rounded-xl">
+                  <div className="text-green-400 text-[10px] font-mono uppercase font-bold">Potential Savings</div>
+                  <div className="text-white text-2xl font-bold mt-1">Rp {optimizationSummary.totalExcessValue.toLocaleString()}</div>
+                  <div className="text-green-400/60 text-[10px] font-mono mt-1">From inventory reduction</div>
+                </div>
+              </div>
+            )}
+
+            <div className="w-full bg-neutral-900 border border-zinc-800 rounded-xl overflow-hidden relative min-h-[300px]">
+              {loadingOptimization ? (
+                <div className="absolute inset-0 flex flex-col items-center justify-center bg-neutral-900/80 backdrop-blur-sm z-10 gap-4">
+                  <svg className="animate-spin text-green-500" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/></svg>
+                  <span className="text-green-500 font-mono text-[10px] uppercase font-bold tracking-widest">Calculating Inventory Optimization Opportunities...</span>
+                </div>
+              ) : null}
+              <div className="overflow-x-auto w-full text-xs font-mono">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="border-b border-zinc-800 text-zinc-500 text-[10px] uppercase font-bold bg-zinc-950/40">
+                      <th className="py-3 px-4">SKU</th>
+                      <th className="py-3 px-4">Item Name</th>
+                      <th className="py-3 px-4 text-center">Value / Stability</th>
+                      <th className="py-3 px-4 text-center">Current Stock</th>
+                      <th className="py-3 px-4 text-center">Min (ROP)</th>
+                      <th className="py-3 px-4 text-center">Max</th>
+                      <th className="py-3 px-4 text-center">Action</th>
+                      <th className="py-3 px-4 text-right">Impact Value</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {optimizationData.filter(item => item.action !== "OPTIMAL").map((item) => {
+                      const actionBadge = item.action === "OVERSTOCK"
+                        ? "bg-red-500/10 text-red-400 border border-red-500/20"
+                        : item.action === "UNDERSTOCK"
+                        ? "bg-yellow-500/10 text-yellow-400 border border-yellow-500/20"
+                        : "bg-orange-500/10 text-orange-400 border border-orange-500/20";
+                      const actionLabel = item.action === "OVERSTOCK" ? "REDUCE STOCK"
+                        : item.action === "UNDERSTOCK" ? "REORDER NOW"
+                        : "REVIEW / REMOVE";
+                      const impactValue = item.action === "OVERSTOCK" ? item.excessValue : item.shortageValue;
+                      return (
+                        <tr key={item.sku} className="border-b border-zinc-800/40 text-zinc-400 hover:text-zinc-200 transition-colors">
+                          <td className="py-3 px-4 text-zinc-300 font-medium">{item.sku}</td>
+                          <td className="py-3 px-4 font-sans text-zinc-300">{item.name}</td>
+                          <td className="py-3 px-4 text-center">
+                            <span className="text-zinc-300">{item.abcClass}/{item.xyzClass}</span>
+                          </td>
+                          <td className="py-3 px-4 text-center text-zinc-300">{item.currentStock}</td>
+                          <td className="py-3 px-4 text-center text-zinc-400">{item.dynamicMinROP}</td>
+                          <td className="py-3 px-4 text-center text-zinc-400">{item.dynamicMax}</td>
+                          <td className="py-3 px-4 text-center">
+                            <span className={`px-2 py-0.5 rounded text-[9px] font-bold ${actionBadge}`}>
+                              {actionLabel}
+                            </span>
+                          </td>
+                          <td className="py-3 px-4 text-right font-bold text-zinc-200">Rp {impactValue.toLocaleString()}</td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
               </div>
             </div>
           </div>

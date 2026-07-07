@@ -56,11 +56,26 @@ class ToolCribPredictiveEngine:
 
         # 3. Dynamic Min-Max
         df_final = pd.merge(df_analysis, stats_df[['SKU_ID', 'XYZ_Class']], on='SKU_ID')
+        
+        if 'Criticality_Level' in df_sku.columns:
+            df_final = pd.merge(df_final, df_sku[['SKU_ID', 'Criticality_Level']], on='SKU_ID', how='left')
+        else:
+            df_final['Criticality_Level'] = 'MEDIUM'
+            
+        def get_safety_factor(crit):
+            if pd.isna(crit): return 1.5
+            crit_str = str(crit).upper()
+            if crit_str == 'HIGH': return 2.0
+            if crit_str == 'LOW': return 1.2
+            return 1.5
+            
+        df_final['Safety_Factor'] = df_final['Criticality_Level'].apply(get_safety_factor)
+        
         df_final['Daily_Demand'] = df_final['Total_Qty_Yearly'] / 365
-        df_final['Dynamic_Min_ROP'] = np.ceil((df_final['Daily_Demand'] * df_final['Lead_Time_Days']) * 1.5)
+        df_final['Dynamic_Min_ROP'] = np.ceil((df_final['Daily_Demand'] * df_final['Lead_Time_Days']) * df_final['Safety_Factor'])
         df_final['Dynamic_Max'] = df_final['Dynamic_Min_ROP'] + np.ceil(df_final['Daily_Demand'] * 30)
 
-        return df_final[['SKU_ID', 'Description', 'ABC_Class', 'XYZ_Class', 'Dynamic_Min_ROP', 'Dynamic_Max', 'Unit_Price', 'Total_Qty_Yearly']]
+        return df_final[['SKU_ID', 'Description', 'ABC_Class', 'XYZ_Class', 'Dynamic_Min_ROP', 'Dynamic_Max', 'Unit_Price', 'Total_Qty_Yearly', 'Lead_Time_Days']]
 
     def detect_duplicate_sku(self, df_sku: pd.DataFrame, threshold: float = 0.60) -> pd.DataFrame:
         """
@@ -107,5 +122,122 @@ class ToolCribPredictiveEngine:
 
         forecast['yhat'] = forecast['yhat'].clip(lower=0)
         forecast['yhat_lower'] = forecast['yhat_lower'].clip(lower=0)
+        forecast['yhat_upper'] = forecast['yhat_upper'].clip(lower=0)
 
-        return forecast[['ds', 'yhat', 'yhat_lower', 'yhat_upper']].tail(days_ahead)
+        # Gabungkan data riwayat asli ('y') ke dalam tabel prediksi
+        forecast_merged = pd.merge(forecast, df_daily, on='ds', how='left')
+        forecast_merged.rename(columns={'y': 'actual'}, inplace=True)
+        
+        # Ubah format tanggal menjadi string (YYYY-MM-DD) agar aman saat dikirim via JSON
+        forecast_merged['ds'] = forecast_merged['ds'].dt.strftime('%Y-%m-%d')
+        
+        # Ganti nilai NaN dengan None menggunakan cara standar Pandas
+        forecast_merged = forecast_merged.replace({np.nan: None})
+
+        # Kembalikan 30 hari riwayat masa lalu + 30 hari prediksi masa depan = 60 baris
+        return forecast_merged[['ds', 'yhat', 'yhat_lower', 'yhat_upper', 'actual']].tail(days_ahead + 30)
+
+    def classify_critical_spares(self, df_sku: pd.DataFrame, df_trx: pd.DataFrame, df_machines: pd.DataFrame) -> pd.DataFrame:
+        """
+        Mengklasifikasikan suku cadang berdasarkan kekritisan:
+        - Usage Score: Seberapa sering barang dipakai
+        - Lead Time Score: Semakin lama lead time, semakin kritikal
+        - Machine Score: Apakah barang dipakai oleh mesin kritikal (downtime_impact HIGH)
+        """
+        # 1. Usage Score (0-100): Berdasarkan total pemakaian relatif
+        usage_df = df_trx.groupby('SKU_ID')['Quantity_Issued'].sum().reset_index()
+        usage_df.columns = ['SKU_ID', 'Total_Usage']
+        max_usage = usage_df['Total_Usage'].max() if not usage_df.empty else 1
+        usage_df['Usage_Score'] = (usage_df['Total_Usage'] / max_usage * 100).round(1)
+
+        # 2. Merge with SKU master data
+        df_result = pd.merge(df_sku[['SKU_ID', 'Description', 'Unit_Price', 'Lead_Time_Days']], usage_df, on='SKU_ID', how='left')
+        df_result['Total_Usage'] = df_result['Total_Usage'].fillna(0)
+        df_result['Usage_Score'] = df_result['Usage_Score'].fillna(0)
+
+        # 3. Lead Time Score (0-100): Normalisasi lead time
+        max_lt = df_result['Lead_Time_Days'].max() if df_result['Lead_Time_Days'].max() > 0 else 1
+        df_result['Lead_Time_Score'] = (df_result['Lead_Time_Days'] / max_lt * 100).round(1)
+
+        # 4. Machine Score (0-100): Berdasarkan hubungan ke mesin kritikal
+        # Parse machine required_spare_parts untuk mapping SKU -> mesin
+        sku_machine_scores = {}
+        impact_map = {'HIGH': 100, 'MEDIUM': 50, 'LOW': 20}
+        
+        for _, machine in df_machines.iterrows():
+            parts_list = machine.get('Required_Parts', [])
+            if isinstance(parts_list, str):
+                parts_list = [p.strip() for p in parts_list.split(',')]
+            impact = machine.get('Downtime_Impact', 'MEDIUM')
+            score = impact_map.get(str(impact).upper(), 50)
+            
+            if isinstance(parts_list, list):
+                for sku in parts_list:
+                    sku_clean = str(sku).strip()
+                    if sku_clean and sku_clean != 'None':
+                        if sku_clean not in sku_machine_scores or score > sku_machine_scores[sku_clean]:
+                            sku_machine_scores[sku_clean] = score
+
+        df_result['Machine_Score'] = df_result['SKU_ID'].map(sku_machine_scores).fillna(0).astype(float)
+
+        # 5. Composite Score: Weighted average
+        # Usage 35%, Lead Time 25%, Machine Criticality 40%
+        df_result['Composite_Score'] = (
+            df_result['Usage_Score'] * 0.35 +
+            df_result['Lead_Time_Score'] * 0.25 +
+            df_result['Machine_Score'] * 0.40
+        ).round(1)
+
+        # 6. Classification
+        df_result['Criticality_Class'] = df_result['Composite_Score'].apply(
+            lambda s: 'CRITICAL' if s >= 70 else ('IMPORTANT' if s >= 40 else 'STANDARD')
+        )
+
+        df_result = df_result.sort_values('Composite_Score', ascending=False).reset_index(drop=True)
+
+        return df_result[['SKU_ID', 'Description', 'Unit_Price', 'Lead_Time_Days', 'Total_Usage',
+                          'Usage_Score', 'Lead_Time_Score', 'Machine_Score', 'Composite_Score', 'Criticality_Class']]
+
+    def generate_optimization_opportunities(self, df_sku: pd.DataFrame, df_trx: pd.DataFrame) -> pd.DataFrame:
+        """
+        Mengidentifikasi peluang pengurangan inventaris dan optimasi pembelian:
+        - OVERSTOCK: Stok saat ini > Dynamic Max → Harus dikurangi
+        - UNDERSTOCK: Stok saat ini < Dynamic Min ROP → Harus segera dipesan
+        - SLOW-MOVING: Kelas C + Z → Pertimbangkan dihapus
+        """
+        # 1. Calculate ABC/XYZ + Dynamic Min-Max
+        abc_result = self.calculate_abc_xyz_and_minmax(df_sku, df_trx)
+
+        # 2. Merge with current stock info
+        df_opt = pd.merge(
+            abc_result,
+            df_sku[['SKU_ID', 'Current_Stock']],
+            on='SKU_ID',
+            how='left'
+        )
+        df_opt['Current_Stock'] = df_opt['Current_Stock'].fillna(0)
+
+        # 3. Determine optimization action
+        def determine_action(row):
+            if row['Current_Stock'] > row['Dynamic_Max']:
+                return 'OVERSTOCK'
+            elif row['Current_Stock'] <= row['Dynamic_Min_ROP']:
+                return 'UNDERSTOCK'
+            elif row['ABC_Class'] == 'C' and row['XYZ_Class'] == 'Z':
+                return 'SLOW_MOVING'
+            else:
+                return 'OPTIMAL'
+            
+        df_opt['Action'] = df_opt.apply(determine_action, axis=1)
+
+        # 4. Calculate financial impact
+        df_opt['Excess_Qty'] = np.maximum(0, df_opt['Current_Stock'] - df_opt['Dynamic_Max'])
+        df_opt['Excess_Value'] = df_opt['Excess_Qty'] * df_opt['Unit_Price']
+        df_opt['Shortage_Qty'] = np.maximum(0, df_opt['Dynamic_Min_ROP'] - df_opt['Current_Stock'])
+        df_opt['Shortage_Value'] = df_opt['Shortage_Qty'] * df_opt['Unit_Price']
+
+        df_opt = df_opt.sort_values('Excess_Value', ascending=False).reset_index(drop=True)
+
+        return df_opt[['SKU_ID', 'Description', 'ABC_Class', 'XYZ_Class', 'Current_Stock',
+                        'Dynamic_Min_ROP', 'Dynamic_Max', 'Unit_Price', 'Action',
+                        'Excess_Qty', 'Excess_Value', 'Shortage_Qty', 'Shortage_Value']]

@@ -11,6 +11,11 @@ export default function RequestPanelPage() {
   const [pendingList, setPendingList] = useState<Requisition[]>([]);
   const [processedList, setProcessedList] = useState<ProcessedRequisition[]>([]);
   const [filterPeriod, setFilterPeriod] = useState("monthly");
+  const [expandedRows, setExpandedRows] = useState<Record<string, boolean>>({});
+
+  const toggleRow = (id: string) => {
+    setExpandedRows(prev => ({ ...prev, [id]: !prev[id] }));
+  };
 
   const loadRequests = async () => {
     const { pending, processed } = await requestService.fetchAllRequests();
@@ -158,9 +163,10 @@ export default function RequestPanelPage() {
                   </thead>
                   <tbody>
                     {pendingList.map((req) => (
+                      <React.Fragment key={req.id}>
                       <tr
-                        key={req.id}
-                        className="border-b border-zinc-800/50 text-neutral-400 hover:text-zinc-200 transition-colors"
+                        onClick={() => toggleRow(req.id)}
+                        className="border-b border-zinc-800/50 text-neutral-400 hover:text-zinc-200 hover:bg-white/5 transition-colors cursor-pointer"
                       >
                         <td className="py-4 px-4 font-bold text-white">
                           {req.id}
@@ -235,13 +241,13 @@ export default function RequestPanelPage() {
                         <td className="py-4 px-4 text-right">
                           <div className="inline-flex gap-2.5">
                             <button
-                              onClick={() => handleReject(req)}
+                              onClick={(e) => { e.stopPropagation(); handleReject(req); }}
                               className="px-3 py-1.5 rounded-sm border border-zinc-850 hover:bg-red-950/20 hover:border-red-900/50 hover:text-red-500 text-gray-400 text-xs font-bold transition-all cursor-pointer tracking-wider"
                             >
                               REJECT
                             </button>
                             <button
-                              onClick={() => handleAccept(req)}
+                              onClick={(e) => { e.stopPropagation(); handleAccept(req); }}
                               className="px-4 py-1.5 bg-blue-500 hover:bg-blue-600 active:bg-blue-700 text-white text-xs font-bold rounded-sm shadow-[0px_0px_15px_0px_rgba(59,130,246,0.20)] transition-all cursor-pointer tracking-wider"
                             >
                               ACC
@@ -249,6 +255,37 @@ export default function RequestPanelPage() {
                           </div>
                         </td>
                       </tr>
+                      {expandedRows[req.id] && req.items && req.items.length > 0 && (
+                        <tr className="bg-neutral-950/80 border-b border-zinc-800/50">
+                          <td colSpan={7} className="py-4 px-8">
+                            <div className="bg-zinc-900/80 rounded-xl border border-zinc-800/80 p-5 shadow-inner">
+                              <h4 className="text-zinc-400 text-xs font-bold mb-3 uppercase tracking-wider flex items-center gap-2">
+                                <span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
+                                Detailed Requested Items
+                              </h4>
+                              <table className="w-full text-left">
+                                <thead>
+                                  <tr className="text-zinc-500 text-[10px] uppercase border-b border-zinc-800/80">
+                                    <th className="pb-2 w-1/4">SKU / Part ID</th>
+                                    <th className="pb-2 w-1/2">Part Name</th>
+                                    <th className="pb-2 text-center w-1/4">Quantity</th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  {req.items.map((item, idx) => (
+                                    <tr key={idx} className="text-zinc-300 text-xs border-b border-zinc-800/50 last:border-0 hover:bg-white/5 transition-colors">
+                                      <td className="py-2.5 font-mono text-gray-400">{item.sku}</td>
+                                      <td className="py-2.5 text-blue-400 font-medium">{item.part_name}</td>
+                                      <td className="py-2.5 text-center font-bold text-white bg-zinc-800/30 rounded">{item.quantity}</td>
+                                    </tr>
+                                  ))}
+                                </tbody>
+                              </table>
+                            </div>
+                          </td>
+                        </tr>
+                      )}
+                      </React.Fragment>
                     ))}
                   </tbody>
                 </table>
@@ -295,9 +332,10 @@ export default function RequestPanelPage() {
                 </thead>
                 <tbody>
                   {processedList.map((proc) => (
+                    <React.Fragment key={proc.id}>
                     <tr
-                      key={proc.id}
-                      className="border-b border-zinc-800/50 text-neutral-400 hover:text-zinc-200 transition-colors"
+                      onClick={() => toggleRow(proc.id)}
+                      className="border-b border-zinc-800/50 text-neutral-400 hover:text-zinc-200 hover:bg-white/5 transition-colors cursor-pointer"
                     >
                       <td className="py-3.5 px-4 text-gray-500">{proc.id}</td>
                       <td className="py-3.5 px-4 font-sans">
@@ -333,6 +371,37 @@ export default function RequestPanelPage() {
                       </td>
                       <td className="py-3.5 px-4 text-right text-gray-500">{proc.dateProcessed}</td>
                     </tr>
+                    {expandedRows[proc.id] && proc.items && proc.items.length > 0 && (
+                      <tr className="bg-neutral-950/80 border-b border-zinc-800/50">
+                        <td colSpan={6} className="py-4 px-8">
+                          <div className="bg-zinc-900/80 rounded-xl border border-zinc-800/80 p-5 shadow-inner">
+                            <h4 className="text-zinc-400 text-xs font-bold mb-3 uppercase tracking-wider flex items-center gap-2">
+                              <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>
+                              Detailed Processed Items
+                            </h4>
+                            <table className="w-full text-left">
+                              <thead>
+                                <tr className="text-zinc-500 text-[10px] uppercase border-b border-zinc-800/80">
+                                  <th className="pb-2 w-1/4">SKU / Part ID</th>
+                                  <th className="pb-2 w-1/2">Part Name</th>
+                                  <th className="pb-2 text-center w-1/4">Quantity</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {proc.items.map((item, idx) => (
+                                  <tr key={idx} className="text-zinc-300 text-xs border-b border-zinc-800/50 last:border-0 hover:bg-white/5 transition-colors">
+                                    <td className="py-2.5 font-mono text-gray-400">{item.sku}</td>
+                                    <td className="py-2.5 text-blue-400 font-medium">{item.part_name}</td>
+                                    <td className="py-2.5 text-center font-bold text-white bg-zinc-800/30 rounded">{item.quantity}</td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                    </React.Fragment>
                   ))}
                 </tbody>
               </table>

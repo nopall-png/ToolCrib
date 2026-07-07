@@ -35,7 +35,8 @@ export const requestService = {
             quantity: r.quantity,
             documentName: r.document_url || "Form_MRO_Standard.pdf",
             documentSize: "1.2 MB",
-            urgency: r.urgency as any
+            urgency: r.urgency as any,
+            items: r.items || []
           });
         } else {
           processed.push({
@@ -45,7 +46,8 @@ export const requestService = {
             documentName: r.document_url || "Form_MRO_Standard.pdf",
             quantity: r.quantity,
             status: r.approval_status as any,
-            dateProcessed: r.created_at
+            dateProcessed: r.created_at,
+            items: r.items || []
           });
         }
       });
@@ -60,7 +62,7 @@ export const requestService = {
   /**
    * Menambahkan request baru ke Backend.
    */
-  async addRequisition(reqData: { requestor_id: string, sku: string, machine_id: string, quantity: number, urgency: string, document_url?: string }): Promise<boolean> {
+  async addRequisition(reqData: { requestor_id: string, machine_id: string, urgency: string, request_type: string, document_url?: string, items: {sku: string, quantity: number}[] }): Promise<boolean> {
     try {
       const response = await fetch(`${API_BASE_URL}/requests`, {
         method: "POST",

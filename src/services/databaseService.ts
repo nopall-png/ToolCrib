@@ -1,4 +1,4 @@
-import { InventoryItem, MachineryItem } from "@/types/database";
+import { InventoryItem, MachineryItem, TransactionItem } from "@/types/database";
 
 const API_BASE = "http://localhost:8000";
 
@@ -105,15 +105,14 @@ export const databaseService = {
 
       // MAPPING: Backend snake_case -> Frontend camelCase
       return (result.data || []).map((item: any) => ({
-        id: item.machine_id,                              // machine_id -> id
-        machineName: item.machine_name,                    // machine_name -> machineName
-        requiredParts: item.required_spare_parts || [],    // required_spare_parts -> requiredParts
-        lastMaintenance: item.last_maintenance_date || "", // last_maintenance_date -> lastMaintenance
-        standardSchedule: item.standard_schedule_date || "", // standard_schedule_date -> standardSchedule
-        aiPrediction: item.ai_prediction_date || "",       // ai_prediction_date -> aiPrediction
-        status: item.status === "HEALTHY" ? "Operational" 
-              : item.status === "MAINTENANCE_REQUIRED" ? "Maintenance Required" 
-              : item.status || "Operational",
+        id: item.machine_id,
+        machineName: item.machine_name,
+        requiredParts: item.required_spare_parts || [],
+        lastMaintenance: item.last_maintenance_date || "",
+        standardSchedule: item.standard_schedule_date || "",
+        aiPrediction: item.ai_prediction_date || "",
+        status: item.status || "HEALTHY",
+        downtimeImpact: item.downtime_impact || "MEDIUM",
       }));
     } catch (error) {
       console.error("❌ databaseService.getMachineryItems error:", error);
@@ -155,6 +154,35 @@ export const databaseService = {
     } catch (error) {
       console.error("❌ databaseService.deleteMachineryItem error:", error);
       return false;
+    }
+  },
+
+  // =====================================================================
+  // INVENTORY TRANSACTIONS
+  // =====================================================================
+
+  async getInventoryTransactions(limit: number = 10): Promise<TransactionItem[]> {
+    try {
+      const response = await fetch(`${API_BASE}/api/v1/transactions`);
+      if (!response.ok) throw new Error("Failed to fetch transactions");
+
+      const result = await response.json();
+
+      const sorted = (result.data || [])
+        .sort((a: any, b: any) => new Date(b.transaction_date).getTime() - new Date(a.transaction_date).getTime())
+        .slice(0, limit);
+
+      return sorted.map((t: any) => ({
+        id: t.id,
+        sku: t.sku,
+        transactionType: t.transaction_type,
+        quantity: t.quantity,
+        transactionDate: t.transaction_date,
+        notes: t.notes || "",
+      }));
+    } catch (error) {
+      console.error("databaseService.getInventoryTransactions error:", error);
+      return [];
     }
   },
 };
