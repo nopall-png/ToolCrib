@@ -20,6 +20,7 @@ export default function ChatbotDrawer({ isOpen, onClose, user }: ChatbotDrawerPr
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputText, setInputText] = useState("");
   const [draftedFile, setDraftedFile] = useState<File | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -195,10 +196,32 @@ export default function ChatbotDrawer({ isOpen, onClose, user }: ChatbotDrawerPr
 
       {/* Drawer Body */}
       <div
+        onDragEnter={(e) => { e.preventDefault(); setIsDragging(true); }}
         className={`fixed top-4 bottom-4 right-4 w-80 bg-neutral-900 border border-zinc-800 rounded-[20px] shadow-2xl z-50 transition-all duration-350 ease-out flex flex-col justify-between overflow-hidden ${
           isOpen ? "translate-x-0 opacity-100" : "translate-x-full opacity-0 pointer-events-none"
         }`}
       >
+        {/* Drag and Drop Overlay */}
+        {isDragging && (
+          <div
+            onDragOver={(e) => e.preventDefault()}
+            onDragLeave={() => setIsDragging(false)}
+            onDrop={(e) => {
+              e.preventDefault();
+              setIsDragging(false);
+              const file = e.dataTransfer.files?.[0];
+              if (file && file.name.endsWith(".pdf")) {
+                setDraftedFile(file);
+              }
+            }}
+            className="absolute inset-0 bg-neutral-950/80 backdrop-blur-sm z-50 flex flex-col items-center justify-center border-2 border-dashed border-red-500 rounded-[20px] m-2 transition-all duration-300"
+          >
+            <span className="text-3xl mb-2">📥</span>
+            <span className="text-xs font-sans text-neutral-200 font-medium">Drop PDF file here to attach</span>
+            <span className="text-[9px] font-mono text-zinc-500 mt-1">Suku cadang / PR Document</span>
+          </div>
+        )}
+
         {/* Top Header Section */}
         <div className="p-4 flex justify-between items-center border-b border-zinc-800/80">
           <div className="flex items-center gap-2">

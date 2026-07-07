@@ -5,7 +5,6 @@ import importlib
 import uvicorn
 from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
 import retrieval_engine
 
@@ -31,14 +30,12 @@ app.add_middleware(
 # Initialize RAG in LLM mode (will automatically fallback to retrieval-only if Ollama is not active)
 rag = ToolCribRAG(use_llm=True)
 
-@app.get("/", response_class=HTMLResponse)
-async def serve_index():
+@app.get("/")
+async def health_check():
     """
-    Serve the HTML UI page at root path.
+    Health check endpoint — confirms the API is running.
     """
-    html_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "index.html")
-    with open(html_path, "r", encoding="utf-8") as f:
-        return f.read()
+    return {"status": "ok", "service": "PTMI ToolCrib AI Assistant API"}
 
 class ChatQuery(BaseModel):
     message: str

@@ -30,7 +30,7 @@ from langchain_huggingface import HuggingFaceEmbeddings
 
 # ChromaDB persistent storage directory
 CHROMA_DB_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                             "chroma_db")
+                             "db", "chroma_db")
 
 # Collection name (must match 1_ingest_data.py)
 COLLECTION_NAME = "toolcrib_inventory"

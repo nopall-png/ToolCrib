@@ -46,3 +46,7 @@ __pycache__/
 *$py.class
 .venv/
 venv/
+
+# ai backend
+ai/db/
+ai/temp_uploaded.pdf

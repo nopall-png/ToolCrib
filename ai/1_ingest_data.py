@@ -40,11 +40,11 @@ from langchain_huggingface import HuggingFaceEmbeddings
 
 # Path to the ToolCrib PDF document
 PDF_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                        "PT_Mattel_ToolCrib_RAG_Final_100_Items.pdf")
+                        "data", "PT_Mattel_ToolCrib_Dataset.pdf")
 
 # ChromaDB persistent storage directory
 CHROMA_DB_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                             "chroma_db")
+                             "db", "chroma_db")
 
 # ChromaDB collection name
 COLLECTION_NAME = "toolcrib_inventory"
