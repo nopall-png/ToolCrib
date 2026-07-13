@@ -95,7 +95,7 @@ export default function ChatbotDrawer({ isOpen, onClose, user }: ChatbotDrawerPr
         const formData = new FormData();
         formData.append("file", fileToSend);
 
-        const uploadRes = await fetch("http://localhost:8000/api/upload", {
+        const uploadRes = await fetch("http://localhost:8001/api/upload", {
           method: "POST",
           body: formData,
         });
@@ -143,7 +143,7 @@ export default function ChatbotDrawer({ isOpen, onClose, user }: ChatbotDrawerPr
     // 2. Process Chat Query if caption/text is present
     if (captionToSend) {
       try {
-        const response = await fetch("http://localhost:8000/api/chat", {
+        const response = await fetch("http://localhost:8001/api/chat", {
           method: "POST",
           headers: {
             "Content-Type": "application/json"

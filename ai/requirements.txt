@@ -7,3 +7,5 @@ langchain-community
 sentence-transformers
 pypdf
 numpy
+langchain_huggingface
+python-multipart
