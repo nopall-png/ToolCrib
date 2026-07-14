@@ -153,13 +153,58 @@ export default function Sidebar({ role = "manager" }: SidebarProps) {
         </svg>
       ),
     },
+    {
+      id: "register",
+      label: "Register Registry",
+      path: `/dashboard/${role}/register`,
+      icon: (
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="M12 20h9"></path>
+          <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+        </svg>
+      ),
+    },
+    {
+      id: "directory",
+      label: "View Directory",
+      path: `/dashboard/${role}/directory`,
+      icon: (
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+          <line x1="9" y1="3" x2="9" y2="21"></line>
+        </svg>
+      ),
+    },
   ];
 
   const filteredNavItems = navItems.filter((item) => {
-    if (role === "engineer" || role === "procurement") {
+    if (role === "engineer") {
+      return ["dashboard", "register", "directory"].includes(item.id);
+    }
+    if (role === "procurement") {
       return item.id === "dashboard";
     }
-    return true;
+    return !["register", "directory"].includes(item.id);
   });
 
   return (
