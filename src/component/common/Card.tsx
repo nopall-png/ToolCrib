@@ -10,11 +10,11 @@ interface CardProps {
 export default function Card({ title, actions, children, className = "" }: CardProps) {
   return (
     <div
-      className={`bg-neutral-900 border border-zinc-800 rounded-[20px] p-6 flex flex-col overflow-hidden shadow-xl ${className}`}
+      className={`bg-white border-none rounded-[20px] p-6 flex flex-col overflow-hidden shadow-sm ${className}`}
     >
       {/* Card Header */}
       <div className="flex justify-between items-center pb-6 min-h-[56px] select-none">
-        <h3 className="text-white text-base font-semibold font-sans leading-6">
+        <h3 className="text-[#2B3674] text-lg font-bold font-sans leading-6">
           {title}
         </h3>
         {actions && (

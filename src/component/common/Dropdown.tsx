@@ -8,17 +8,17 @@ export default function Dropdown({ options, className = "", ...props }: Dropdown
   return (
     <div className="relative inline-block select-none">
       <select
-        className={`appearance-none bg-zinc-900 text-neutral-400 text-xs font-medium font-sans px-3.5 pr-8 py-1.5 rounded-[10px] border border-zinc-800 focus:outline-none focus:border-red-500 cursor-pointer transition-colors ${className}`}
+        className={`appearance-none bg-white text-[#2B3674] text-xs font-medium font-sans px-3.5 pr-8 py-1.5 rounded-[10px] border border-gray-100 focus:outline-none focus:border-[#4318FF] cursor-pointer transition-colors shadow-sm ${className}`}
         {...props}
       >
         {options.map((opt) => (
-          <option key={opt.value} value={opt.value} className="bg-neutral-900 text-white text-xs">
+          <option key={opt.value} value={opt.value} className="bg-white text-[#2B3674] text-xs">
             {opt.label}
           </option>
         ))}
       </select>
       {/* Caret Down Icon */}
-      <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-neutral-500 w-2.5 h-2.5 flex items-center justify-center">
+      <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-[#A3AED0] w-2.5 h-2.5 flex items-center justify-center">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width="10"

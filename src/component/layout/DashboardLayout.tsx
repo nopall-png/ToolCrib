@@ -71,7 +71,7 @@ export default function DashboardLayout({ children, role }: DashboardLayoutProps
   }
 
   return (
-    <div className="min-h-screen w-full bg-neutral-950 text-white relative overflow-hidden flex flex-col md:flex-row pl-4 pr-4 py-6 md:pl-[45px] md:pr-[45px] md:pt-[67px] md:pb-[60px] gap-6 md:gap-[67px]">
+    <div className="min-h-screen w-full bg-[#F4F7FE] text-[#2B3674] relative overflow-hidden flex flex-col md:flex-row pl-4 pr-4 py-6 md:pl-[45px] md:pr-[45px] md:pt-[67px] md:pb-[60px] gap-6 md:gap-[67px]">
       
       {/* Main Content Layout */}
 

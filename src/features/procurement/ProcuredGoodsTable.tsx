@@ -19,7 +19,7 @@ export default function ProcuredGoodsTable({
     <div className="flex flex-col gap-4">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 px-1">
         <div className="flex items-center gap-2">
-          <div className="w-4 h-4 text-red-500 flex items-center justify-center">
+          <div className="w-4 h-4 text-[#4318FF] flex items-center justify-center">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="14"
@@ -34,7 +34,7 @@ export default function ProcuredGoodsTable({
               <path d="M2 12l10 5 10-5"></path>
             </svg>
           </div>
-          <h3 className="text-gray-300 text-sm font-bold font-mono uppercase tracking-wider">
+          <h3 className="text-[#A3AED0] text-sm font-bold font-mono uppercase tracking-wider">
             All Procured Goods
           </h3>
         </div>
@@ -45,20 +45,20 @@ export default function ProcuredGoodsTable({
           placeholder="Search items / request IDs..."
           value={searchQuery}
           onChange={(e) => onSearchChange(e.target.value)}
-          className="px-4 py-2 bg-neutral-900 text-white rounded-lg border border-zinc-800 text-xs font-sans focus:outline-none focus:border-red-500 transition-colors w-full md:w-64"
+          className="px-4 py-2 bg-white text-[#2B3674] placeholder-[#A3AED0] rounded-lg border border-gray-100 text-xs font-sans focus:outline-none focus:border-[#4318FF] transition-colors w-full md:w-64 shadow-sm"
         />
       </div>
 
-      <div className="w-full bg-neutral-900 border border-zinc-800 rounded-2xl overflow-hidden shadow-2xl p-6">
+      <div className="w-full bg-white border border-gray-100 rounded-2xl overflow-hidden shadow-sm p-6">
         <div className="overflow-x-auto w-full text-xs font-mono">
           {filteredItems.length === 0 ? (
-            <div className="py-12 text-center text-neutral-500 uppercase tracking-widest text-[10px]">
+            <div className="py-12 text-center text-[#A3AED0] uppercase tracking-widest text-[10px]">
               No items found matching the filter.
             </div>
           ) : (
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="border-b border-zinc-800 text-gray-500 text-[10px] uppercase font-bold">
+                <tr className="border-b border-gray-100 text-[#A3AED0] text-[10px] uppercase font-bold">
                   <th className="pb-3 px-4">REQ ID</th>
                   <th className="pb-3 px-4">Item Details</th>
                   <th className="pb-3 px-4">Destination</th>
@@ -75,17 +75,17 @@ export default function ProcuredGoodsTable({
                   return (
                     <tr
                       key={item.id}
-                      className="border-b border-zinc-800/50 text-neutral-400 hover:text-zinc-200 transition-colors"
+                      className="border-b border-gray-50 text-[#A3AED0] hover:text-[#2B3674] hover:bg-gray-50/50 transition-colors"
                     >
-                      <td className="py-3.5 px-4 font-bold text-white">{item.id}</td>
-                      <td className="py-3.5 px-4 font-sans font-semibold text-gray-200">{item.itemName}</td>
+                      <td className="py-3.5 px-4 font-bold text-[#2B3674]">{item.id}</td>
+                      <td className="py-3.5 px-4 font-sans font-semibold text-[#2B3674]">{item.itemName}</td>
                       <td className="py-3.5 px-4">{item.destination}</td>
                       <td className="py-3.5 px-4 text-center">
-                        <span className="px-2 py-0.5 bg-neutral-950 border border-zinc-850 rounded text-white font-bold">
+                        <span className="px-2 py-0.5 bg-gray-50 border border-gray-100 rounded text-[#2B3674] font-bold">
                           {item.quantity}
                         </span>
                       </td>
-                      <td className="py-3.5 px-4 text-gray-500">{item.documentName}</td>
+                      <td className="py-3.5 px-4 text-[#4318FF]">{item.documentName}</td>
                       <td className="py-3.5 px-4">
                         <span className={`px-2 py-0.5 rounded-sm text-[9px] font-bold border ${className}`}>
                           {label}
@@ -95,7 +95,7 @@ export default function ProcuredGoodsTable({
                         <select
                           value={normStatus}
                           onChange={(e) => onStatusChange(item.id, e.target.value)}
-                          className="px-2 py-1 bg-neutral-950 border border-zinc-800 text-neutral-300 text-[10px] font-mono rounded focus:outline-none focus:border-red-500 cursor-pointer"
+                          className="px-2 py-1 bg-white border border-gray-100 text-[#2B3674] text-[10px] font-mono rounded focus:outline-none focus:border-[#4318FF] cursor-pointer"
                         >
                           <option value="ONGOING">Ongoing</option>
                           <option value="ON_SHIPMENT">On Shipment</option>
