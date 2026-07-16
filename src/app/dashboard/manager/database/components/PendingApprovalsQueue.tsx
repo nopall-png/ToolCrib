@@ -68,8 +68,8 @@ export default function PendingApprovalsQueue({ onApprovalSuccess }: PendingAppr
   return (
     <div className="flex flex-col gap-6">
       {!hasApprovals ? (
-        <div className="w-full bg-neutral-900 border border-zinc-800 rounded-2xl p-12 text-center shadow-xl">
-          <div className="w-12 h-12 rounded-full bg-zinc-800/50 flex items-center justify-center mx-auto mb-4 text-zinc-500">
+        <div className="w-full bg-white border-none rounded-2xl p-12 text-center shadow-sm">
+          <div className="w-12 h-12 rounded-full bg-gray-50 flex items-center justify-center mx-auto mb-4 text-[#A3AED0]">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="20"
@@ -83,19 +83,19 @@ export default function PendingApprovalsQueue({ onApprovalSuccess }: PendingAppr
               <polyline points="22 4 12 14.01 9 11.01"></polyline>
             </svg>
           </div>
-          <h3 className="text-zinc-300 font-mono text-xs uppercase tracking-wider font-bold">
+          <h3 className="text-[#2B3674] font-mono text-xs uppercase tracking-wider font-bold">
             Approvals Queue Clear
           </h3>
-          <p className="text-zinc-500 text-[11px] font-sans mt-1">
+          <p className="text-[#A3AED0] text-[11px] font-sans mt-1">
             No new machinery or stock registrations pending engineer requests.
           </p>
         </div>
       ) : (
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
           {/* Pending Stock Card */}
-          <div className="bg-neutral-900 border border-zinc-800 rounded-2xl p-6 shadow-xl flex flex-col gap-4">
-            <div className="flex justify-between items-center border-b border-zinc-800 pb-3">
-              <h3 className="text-zinc-300 text-xs font-mono font-bold uppercase tracking-wider flex items-center gap-2">
+          <div className="bg-white border-none rounded-2xl p-6 shadow-sm flex flex-col gap-4">
+            <div className="flex justify-between items-center border-b border-gray-100 pb-3">
+              <h3 className="text-[#2B3674] text-xs font-mono font-bold uppercase tracking-wider flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
                 Pending Stock Approvals ({pendingStock.length})
               </h3>
@@ -103,48 +103,48 @@ export default function PendingApprovalsQueue({ onApprovalSuccess }: PendingAppr
             
             <div className="flex flex-col gap-3 overflow-y-auto max-h-[350px] pr-1.5 scrollbar-thin scrollbar-thumb-zinc-800 scrollbar-track-transparent">
               {pendingStock.length === 0 ? (
-                <div className="py-12 text-center text-zinc-650 text-[10px] font-mono uppercase">
+                <div className="py-12 text-center text-[#A3AED0] text-[10px] font-mono uppercase">
                   No pending stock requests
                 </div>
               ) : (
                 pendingStock.map((item) => (
                   <div
                     key={item.sku}
-                    className="p-4 bg-zinc-950/40 border border-zinc-850 rounded-xl flex flex-col gap-3"
+                    className="p-4 bg-white shadow-sm border border-gray-100 rounded-xl flex flex-col gap-3"
                   >
                     <div className="flex justify-between items-start gap-2">
                       <div>
-                        <h4 className="text-zinc-200 font-sans text-xs font-bold leading-tight">
+                        <h4 className="text-[#2B3674] font-sans text-xs font-bold leading-tight">
                           {item.name}
                         </h4>
                         <div className="flex items-center gap-2 mt-1">
-                          <span className="text-[10px] text-zinc-500 font-mono">{item.sku}</span>
-                          <span className="text-[9px] px-1.5 py-0.2 bg-zinc-900 border border-zinc-800 text-zinc-400 font-mono rounded">
+                          <span className="text-[10px] text-[#A3AED0] font-mono">{item.sku}</span>
+                          <span className="text-[9px] px-1.5 py-0.2 bg-gray-50 border border-gray-100 text-[#A3AED0] font-mono rounded">
                             {item.category}
                           </span>
                         </div>
                       </div>
                       <div className="text-right">
-                        <span className="text-xs text-white font-mono font-bold">{item.quantity} units</span>
-                        <div className="text-[9px] text-zinc-500 font-mono mt-0.5">Loc: {item.rackLocation}</div>
+                        <span className="text-xs text-[#2B3674] font-mono font-bold">{item.quantity} units</span>
+                        <div className="text-[9px] text-[#A3AED0] font-mono mt-0.5">Loc: {item.rackLocation}</div>
                       </div>
                     </div>
 
-                    <div className="flex justify-between items-center border-t border-zinc-900 pt-2.5">
-                      <div className="flex gap-4 text-[10px] font-mono text-zinc-500">
+                    <div className="flex justify-between items-center border-t border-gray-100 pt-2.5">
+                      <div className="flex gap-4 text-[10px] font-mono text-[#A3AED0]">
                         <div>Min/Max: {item.minStock}/{item.maxStock}</div>
-                        <div>Criticality: <span className="text-zinc-400 font-bold">{item.criticalityLevel}</span></div>
+                        <div>Criticality: <span className="text-[#2B3674] font-bold">{item.criticalityLevel}</span></div>
                       </div>
                       <div className="flex gap-2">
                         <button
                           onClick={() => handleRejectStock(item.sku)}
-                          className="px-2.5 py-1 bg-red-950/20 hover:bg-red-950/40 border border-red-900/30 hover:border-red-900/50 text-red-400 text-[10px] font-mono uppercase font-bold rounded-lg transition-colors cursor-pointer"
+                          className="px-2.5 py-1 bg-red-50 hover:bg-red-100 border border-red-100 text-red-500 text-[10px] font-mono uppercase font-bold rounded-lg transition-colors cursor-pointer"
                         >
                           Reject
                         </button>
                         <button
                           onClick={() => handleApproveStock(item)}
-                          className="px-2.5 py-1 bg-green-950/20 hover:bg-green-950/40 border border-green-900/30 hover:border-green-900/50 text-green-400 text-[10px] font-mono uppercase font-bold rounded-lg transition-colors cursor-pointer"
+                          className="px-2.5 py-1 bg-green-50 hover:bg-green-100 border border-green-100 text-green-500 text-[10px] font-mono uppercase font-bold rounded-lg transition-colors cursor-pointer"
                         >
                           ACC
                         </button>
@@ -157,9 +157,9 @@ export default function PendingApprovalsQueue({ onApprovalSuccess }: PendingAppr
           </div>
 
           {/* Pending Machine Card */}
-          <div className="bg-neutral-900 border border-zinc-800 rounded-2xl p-6 shadow-xl flex flex-col gap-4">
-            <div className="flex justify-between items-center border-b border-zinc-800 pb-3">
-              <h3 className="text-zinc-300 text-xs font-mono font-bold uppercase tracking-wider flex items-center gap-2">
+          <div className="bg-white border-none rounded-2xl p-6 shadow-sm flex flex-col gap-4">
+            <div className="flex justify-between items-center border-b border-gray-100 pb-3">
+              <h3 className="text-[#2B3674] text-xs font-mono font-bold uppercase tracking-wider flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-cyan-500 animate-pulse"></span>
                 Pending Machine Registrations ({pendingMachines.length})
               </h3>
@@ -167,48 +167,48 @@ export default function PendingApprovalsQueue({ onApprovalSuccess }: PendingAppr
             
             <div className="flex flex-col gap-3 overflow-y-auto max-h-[350px] pr-1.5 scrollbar-thin scrollbar-thumb-zinc-800 scrollbar-track-transparent">
               {pendingMachines.length === 0 ? (
-                <div className="py-12 text-center text-zinc-650 text-[10px] font-mono uppercase">
+                <div className="py-12 text-center text-[#A3AED0] text-[10px] font-mono uppercase">
                   No pending machine requests
                 </div>
               ) : (
                 pendingMachines.map((item) => (
                   <div
                     key={item.id}
-                    className="p-4 bg-zinc-950/40 border border-zinc-850 rounded-xl flex flex-col gap-3"
+                    className="p-4 bg-white shadow-sm border border-gray-100 rounded-xl flex flex-col gap-3"
                   >
                     <div className="flex justify-between items-start gap-2">
                       <div>
-                        <h4 className="text-zinc-200 font-sans text-xs font-bold leading-tight">
+                        <h4 className="text-[#2B3674] font-sans text-xs font-bold leading-tight">
                           {item.machineName}
                         </h4>
-                        <span className="text-[10px] text-zinc-500 font-mono mt-1 block">ID: {item.id}</span>
+                        <span className="text-[10px] text-[#A3AED0] font-mono mt-1 block">ID: {item.id}</span>
                       </div>
                       <div className="text-right">
-                        <span className="text-[9px] px-1.5 py-0.5 bg-neutral-950 border border-zinc-800 text-zinc-400 font-mono rounded">
+                        <span className="text-[9px] px-1.5 py-0.5 bg-gray-50 border border-gray-100 text-[#A3AED0] font-mono rounded">
                           {item.status}
                         </span>
-                        <div className="text-[9px] text-zinc-500 font-mono mt-1">Maint: {item.lastMaintenance}</div>
+                        <div className="text-[9px] text-[#A3AED0] font-mono mt-1">Maint: {item.lastMaintenance}</div>
                       </div>
                     </div>
 
-                    <div className="flex flex-wrap gap-1 border-t border-zinc-900 pt-2 pb-1">
+                    <div className="flex flex-wrap gap-1 border-t border-gray-100 pt-2 pb-1">
                       {item.requiredParts.map((part, idx) => (
-                        <span key={idx} className="px-1.5 py-0.2 bg-zinc-900 border border-zinc-800 rounded text-[9px] text-zinc-450">
+                        <span key={idx} className="px-1.5 py-0.2 bg-gray-50 border border-gray-100 rounded text-[9px] text-[#A3AED0]">
                           {part}
                         </span>
                       ))}
                     </div>
 
-                    <div className="flex justify-end gap-2 border-t border-zinc-900 pt-2.5">
+                    <div className="flex justify-end gap-2 border-t border-gray-100 pt-2.5">
                       <button
                         onClick={() => handleRejectMachine(item.id)}
-                        className="px-2.5 py-1 bg-red-950/20 hover:bg-red-950/40 border border-red-900/30 hover:border-red-900/50 text-red-400 text-[10px] font-mono uppercase font-bold rounded-lg transition-colors cursor-pointer"
+                        className="px-2.5 py-1 bg-red-50 hover:bg-red-100 border border-red-100 text-red-500 text-[10px] font-mono uppercase font-bold rounded-lg transition-colors cursor-pointer"
                       >
                         Reject
                       </button>
                       <button
                         onClick={() => handleApproveMachine(item)}
-                        className="px-2.5 py-1 bg-green-950/20 hover:bg-green-950/40 border border-green-900/30 hover:border-green-900/50 text-green-400 text-[10px] font-mono uppercase font-bold rounded-lg transition-colors cursor-pointer"
+                        className="px-2.5 py-1 bg-green-50 hover:bg-green-100 border border-green-100 text-green-500 text-[10px] font-mono uppercase font-bold rounded-lg transition-colors cursor-pointer"
                       >
                         ACC
                       </button>

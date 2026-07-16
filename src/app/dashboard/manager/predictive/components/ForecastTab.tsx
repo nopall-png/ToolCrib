@@ -59,13 +59,13 @@ export default function ForecastTab({
             y1={yPos}
             x2={width - paddingRight}
             y2={yPos}
-            stroke="#1f1f22"
+            stroke="#e5e7eb"
             strokeWidth="1"
           />
           <text
             x={paddingLeft - 8}
             y={yPos + 3}
-            fill="#52525b"
+            fill="#9ca3af"
             fontSize="8"
             fontFamily="monospace"
             textAnchor="end"
@@ -110,7 +110,7 @@ export default function ForecastTab({
     const fullAreaPath = `${areaPathTop} ${areaPathBottom} Z`;
 
     return (
-      <div className="w-full bg-neutral-900 border border-zinc-800/80 p-5 rounded-xl">
+      <div className="w-full bg-white border border-gray-100 p-5 rounded-xl shadow-sm">
         <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-auto select-none overflow-visible">
           {gridLines}
 
@@ -118,7 +118,7 @@ export default function ForecastTab({
           {forecastPath && (
             <path
               d={fullAreaPath}
-              fill="rgba(113, 113, 122, 0.04)"
+              fill="rgba(163, 174, 208, 0.15)"
               stroke="none"
             />
           )}
@@ -130,25 +130,25 @@ export default function ForecastTab({
               y1={getY(actualPoints[actualPoints.length - 1].actual!)}
               x2={getX(actualPoints.length)}
               y2={getY(forecastData[actualPoints.length].yhat)}
-              stroke="#71717a"
+              stroke="#A3AED0"
               strokeWidth="1.5"
               strokeDasharray="3 3"
             />
           )}
 
-          {/* Actual line (Gray) */}
+          {/* Actual line */}
           {actualPath && (
             <path
               d={actualPath}
               fill="none"
-              stroke="#d4d4d8"
+              stroke="#4318FF"
               strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
             />
           )}
 
-          {/* Prediction line (White dashed) */}
+          {/* Prediction line */}
           {forecastPath && (
             <path
               d={forecastPath}
@@ -169,13 +169,13 @@ export default function ForecastTab({
                 y1={paddingTop}
                 x2={getX(actualPoints.length - 1)}
                 y2={height - paddingBottom}
-                stroke="#52525b"
+                stroke="#A3AED0"
                 strokeWidth="1"
               />
               <text
                 x={getX(actualPoints.length - 1) + 4}
                 y={paddingTop + 6}
-                fill="#71717a"
+                fill="#A3AED0"
                 fontSize="8"
                 fontFamily="monospace"
                 fontWeight="normal"
@@ -189,7 +189,7 @@ export default function ForecastTab({
           <text
             x={paddingLeft}
             y={height - 8}
-            fill="#52525b"
+            fill="#9ca3af"
             fontSize="8"
             fontFamily="monospace"
             textAnchor="start"
@@ -199,7 +199,7 @@ export default function ForecastTab({
           <text
             x={width - paddingRight}
             y={height - 8}
-            fill="#52525b"
+            fill="#9ca3af"
             fontSize="8"
             fontFamily="monospace"
             textAnchor="end"
@@ -214,15 +214,15 @@ export default function ForecastTab({
   return (
     <div className="flex flex-col gap-5">
       {/* Dropdown Selector */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-neutral-900 border border-zinc-800/80 px-5 py-4 rounded-xl">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white border border-gray-100 px-5 py-4 rounded-xl shadow-sm">
         <div>
-          <h4 className="text-zinc-200 text-xs font-bold uppercase tracking-wider">Select Component Target</h4>
-          <p className="text-zinc-500 text-[10px] mt-0.5">Visualize 30-day Prophet forward projections.</p>
+          <h4 className="text-[#2B3674] text-xs font-bold uppercase tracking-wider">Select Component Target</h4>
+          <p className="text-[#A3AED0] text-[10px] mt-0.5">Visualize 30-day Prophet forward projections.</p>
         </div>
         <select
           value={selectedSku}
           onChange={(e) => setSelectedSku(e.target.value)}
-          className="px-3 py-1.5 bg-zinc-950 border border-zinc-800 text-zinc-300 text-xs font-mono rounded-lg focus:outline-none focus:border-zinc-700 cursor-pointer"
+          className="px-3 py-1.5 bg-white border border-gray-100 text-[#2B3674] text-xs font-mono rounded-lg focus:outline-none focus:border-blue-500 cursor-pointer"
         >
           {inventoryItems.map((item) => (
             <option key={item.sku} value={item.sku}>
@@ -235,9 +235,9 @@ export default function ForecastTab({
       {/* Svg Chart with Loading Overlay */}
       <div className="relative min-h-[300px]">
         {loadingForecast ? (
-          <div className="absolute inset-0 flex flex-col items-center justify-center bg-neutral-900/80 backdrop-blur-sm z-10 gap-4 rounded-xl border border-zinc-850">
+          <div className="absolute inset-0 flex flex-col items-center justify-center bg-white/80 backdrop-blur-sm z-10 gap-4 rounded-xl border border-gray-100">
             <svg
-              className="animate-spin text-purple-500"
+              className="animate-spin text-[#4318FF]"
               width="32"
               height="32"
               viewBox="0 0 24 24"
@@ -247,7 +247,7 @@ export default function ForecastTab({
             >
               <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2" />
             </svg>
-            <span className="text-purple-500 font-mono text-[10px] uppercase font-bold tracking-widest">
+            <span className="text-[#4318FF] font-mono text-[10px] uppercase font-bold tracking-widest">
               Generating Prophet Time-Series Forecast...
             </span>
           </div>
@@ -256,9 +256,9 @@ export default function ForecastTab({
       </div>
 
       {/* Simple Minimal Legend */}
-      <div className="flex justify-center gap-6 text-[10px] font-mono text-zinc-500 py-1">
+      <div className="flex justify-center gap-6 text-[10px] font-mono text-[#A3AED0] py-1">
         <div className="flex items-center gap-1.5">
-          <span className="w-3.5 h-0.5 bg-zinc-300 block"></span>
+          <span className="w-3.5 h-0.5 bg-[#4318FF] block"></span>
           <span>Actual Demand (Last 30d)</span>
         </div>
         <div className="flex items-center gap-1.5">
@@ -266,7 +266,7 @@ export default function ForecastTab({
           <span>Prophet Prediction (Next 30d)</span>
         </div>
         <div className="flex items-center gap-1.5">
-          <span className="w-4 h-2 bg-zinc-800/50 block"></span>
+          <span className="w-4 h-2 bg-gray-200 block"></span>
           <span>95% Confidence Area</span>
         </div>
       </div>

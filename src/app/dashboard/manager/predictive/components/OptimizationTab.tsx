@@ -30,37 +30,37 @@ export default function OptimizationTab({
       {/* Summary Cards */}
       {optimizationSummary && (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="p-4 bg-red-950/20 border border-red-900/30 rounded-xl">
-            <div className="text-red-400 text-[10px] font-mono uppercase font-bold">Overstock Items</div>
-            <div className="text-white text-2xl font-bold mt-1">{optimizationSummary.overstockCount}</div>
-            <div className="text-red-400/60 text-[10px] font-mono mt-1">
+          <div className="p-4 bg-red-50 border border-red-100 rounded-xl shadow-sm">
+            <div className="text-red-500 text-[10px] font-mono uppercase font-bold">Overstock Items</div>
+            <div className="text-red-600 text-2xl font-bold mt-1">{optimizationSummary.overstockCount}</div>
+            <div className="text-red-500/80 text-[10px] font-mono mt-1">
               Excess Value: Rp {optimizationSummary.totalExcessValue.toLocaleString("id-ID")}
             </div>
           </div>
-          <div className="p-4 bg-yellow-950/20 border border-yellow-900/30 rounded-xl">
-            <div className="text-yellow-400 text-[10px] font-mono uppercase font-bold">Understock Items</div>
-            <div className="text-white text-2xl font-bold mt-1">{optimizationSummary.understockCount}</div>
-            <div className="text-yellow-400/60 text-[10px] font-mono mt-1">
+          <div className="p-4 bg-yellow-50 border border-yellow-100 rounded-xl shadow-sm">
+            <div className="text-yellow-500 text-[10px] font-mono uppercase font-bold">Understock Items</div>
+            <div className="text-yellow-600 text-2xl font-bold mt-1">{optimizationSummary.understockCount}</div>
+            <div className="text-yellow-500/80 text-[10px] font-mono mt-1">
               Shortage Value: Rp {optimizationSummary.totalShortageValue.toLocaleString("id-ID")}
             </div>
           </div>
-          <div className="p-4 bg-orange-950/20 border border-orange-900/30 rounded-xl">
-            <div className="text-orange-400 text-[10px] font-mono uppercase font-bold">Slow-Moving</div>
-            <div className="text-white text-2xl font-bold mt-1">{optimizationSummary.slowMovingCount}</div>
-            <div className="text-orange-400/60 text-[10px] font-mono mt-1">Class C + Z: Review needed</div>
+          <div className="p-4 bg-orange-50 border border-orange-100 rounded-xl shadow-sm">
+            <div className="text-orange-500 text-[10px] font-mono uppercase font-bold">Slow-Moving</div>
+            <div className="text-orange-600 text-2xl font-bold mt-1">{optimizationSummary.slowMovingCount}</div>
+            <div className="text-orange-500/80 text-[10px] font-mono mt-1">Class C + Z: Review needed</div>
           </div>
-          <div className="p-4 bg-green-950/20 border border-green-900/30 rounded-xl">
-            <div className="text-green-400 text-[10px] font-mono uppercase font-bold">Potential Savings</div>
-            <div className="text-white text-2xl font-bold mt-1">
+          <div className="p-4 bg-green-50 border border-green-100 rounded-xl shadow-sm">
+            <div className="text-green-500 text-[10px] font-mono uppercase font-bold">Potential Savings</div>
+            <div className="text-green-600 text-2xl font-bold mt-1">
               Rp {optimizationSummary.totalExcessValue.toLocaleString("id-ID")}
             </div>
-            <div className="text-green-400/60 text-[10px] font-mono mt-1">From inventory reduction</div>
+            <div className="text-green-500/80 text-[10px] font-mono mt-1">From inventory reduction</div>
           </div>
         </div>
       )}
 
       {/* Search and Filters Panel */}
-      <div className="flex flex-col md:flex-row gap-4 justify-between items-center bg-neutral-900 border border-zinc-800 p-4 rounded-xl">
+      <div className="flex flex-col md:flex-row gap-4 justify-between items-center bg-[#F4F7FE] border border-white p-4 rounded-xl">
         {/* Search */}
         <div className="relative w-full md:w-80">
           <div className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500 w-4 h-4 flex items-center justify-center">
@@ -82,18 +82,18 @@ export default function OptimizationTab({
             placeholder="Search SKU or name..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full h-9 pl-9 pr-4 bg-zinc-950 text-white rounded-lg border border-zinc-800 focus:border-blue-500 focus:outline-none transition-colors text-xs font-mono placeholder-zinc-600"
+            className="w-full h-9 pl-9 pr-4 bg-white text-[#2B3674] rounded-lg border border-gray-100 focus:border-blue-500 focus:outline-none transition-colors text-xs font-mono placeholder-[#A3AED0]"
           />
         </div>
 
         {/* Dropdowns */}
         <div className="flex items-center gap-4 w-full md:w-auto justify-end">
           <div className="flex items-center gap-2">
-            <span className="text-[10px] font-mono text-zinc-500 uppercase">Action Needed:</span>
+            <span className="text-[10px] font-mono text-[#A3AED0] uppercase">Action Needed:</span>
             <select
               value={actionFilter}
               onChange={(e) => setActionFilter(e.target.value)}
-              className="h-9 px-3 bg-zinc-950 border border-zinc-800 text-zinc-300 text-xs font-mono rounded-lg focus:outline-none focus:border-zinc-700 cursor-pointer"
+              className="h-9 px-3 bg-white border border-gray-100 text-[#2B3674] text-xs font-mono rounded-lg focus:outline-none focus:border-blue-500 cursor-pointer"
             >
               <option value="ALL">All Actions</option>
               <option value="OVERSTOCK">Reduce Stock (Overstock)</option>
@@ -104,9 +104,9 @@ export default function OptimizationTab({
         </div>
       </div>
 
-      <div className="w-full bg-neutral-900 border border-zinc-800 rounded-xl overflow-hidden relative min-h-[300px]">
+      <div className="w-full bg-white border-none shadow-sm rounded-xl overflow-hidden relative min-h-[300px]">
         {loadingOptimization ? (
-          <div className="absolute inset-0 flex flex-col items-center justify-center bg-neutral-900/80 backdrop-blur-sm z-10 gap-4">
+          <div className="absolute inset-0 flex flex-col items-center justify-center bg-white/80 backdrop-blur-sm z-10 gap-4">
             <svg
               className="animate-spin text-green-500"
               width="32"
@@ -126,7 +126,7 @@ export default function OptimizationTab({
         <div className="overflow-x-auto w-full text-xs font-mono">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="border-b border-zinc-800 text-zinc-500 text-[10px] uppercase font-bold bg-zinc-950/40">
+              <tr className="border-b border-gray-100 text-[#A3AED0] text-[10px] uppercase font-bold bg-[#F4F7FE]">
                 <th className="py-3 px-4">SKU</th>
                 <th className="py-3 px-4">Item Name</th>
                 <th className="py-3 px-4 text-center">Value / Stability</th>
@@ -140,7 +140,7 @@ export default function OptimizationTab({
             <tbody>
               {filteredOptimizationData.filter((item) => item.action !== "OPTIMAL").length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="py-12 text-center text-zinc-500 text-[10px] uppercase font-mono tracking-widest">
+                  <td colSpan={8} className="py-12 text-center text-[#A3AED0] text-[10px] uppercase font-mono tracking-widest">
                     No optimization opportunities match the selected criteria.
                   </td>
                 </tr>
@@ -150,10 +150,10 @@ export default function OptimizationTab({
                   .map((item) => {
                     const actionBadge =
                       item.action === "OVERSTOCK"
-                        ? "bg-red-500/10 text-red-400 border border-red-500/20"
+                        ? "bg-red-50 text-red-500"
                         : item.action === "UNDERSTOCK"
-                        ? "bg-yellow-500/10 text-yellow-400 border-yellow-500/20"
-                        : "bg-orange-500/10 text-orange-400 border-orange-500/20";
+                        ? "bg-yellow-50 text-yellow-500"
+                        : "bg-orange-50 text-orange-500";
                     const actionLabel =
                       item.action === "OVERSTOCK"
                         ? "REDUCE STOCK"
@@ -164,24 +164,24 @@ export default function OptimizationTab({
                     return (
                       <tr
                         key={item.sku}
-                        className="border-b border-zinc-800/40 text-zinc-400 hover:text-zinc-200 transition-colors"
+                        className="border-b border-gray-50 text-[#A3AED0] hover:text-[#2B3674] hover:bg-gray-50/50 transition-colors"
                       >
-                        <td className="py-3 px-4 text-zinc-300 font-medium">{item.sku}</td>
-                        <td className="py-3 px-4 font-sans text-zinc-300">{item.name}</td>
+                        <td className="py-3 px-4 text-[#2B3674] font-bold">{item.sku}</td>
+                        <td className="py-3 px-4 font-sans font-bold text-[#2B3674]">{item.name}</td>
                         <td className="py-3 px-4 text-center">
-                          <span className="text-zinc-300">
+                          <span className="text-[#2B3674]">
                             {item.abcClass}/{item.xyzClass}
                           </span>
                         </td>
-                        <td className="py-3 px-4 text-center text-zinc-300">{item.currentStock}</td>
-                        <td className="py-3 px-4 text-center text-zinc-400">{item.dynamicMinROP}</td>
-                        <td className="py-3 px-4 text-center text-zinc-400">{item.dynamicMax}</td>
+                        <td className="py-3 px-4 text-center text-[#2B3674]">{item.currentStock}</td>
+                        <td className="py-3 px-4 text-center text-[#A3AED0]">{item.dynamicMinROP}</td>
+                        <td className="py-3 px-4 text-center text-[#A3AED0]">{item.dynamicMax}</td>
                         <td className="py-3 px-4 text-center">
                           <span className={`px-2 py-0.5 rounded text-[9px] font-bold ${actionBadge}`}>
                             {actionLabel}
                           </span>
                         </td>
-                        <td className="py-3 px-4 text-right font-bold text-zinc-200">
+                        <td className="py-3 px-4 text-right font-bold text-[#4318FF]">
                           Rp {impactValue.toLocaleString("id-ID")}
                         </td>
                       </tr>

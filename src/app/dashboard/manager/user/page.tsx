@@ -147,13 +147,13 @@ export default function UserPanelPage() {
         {/* Header Section & Breadcrumbs */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="flex items-center gap-1.5 text-2xl font-semibold tracking-wide">
-            <span className="text-neutral-500 font-medium">Dashboard/</span>
-            <span className="text-neutral-400 font-light text-xl">User Pannel</span>
+            <span className="text-gray-500 font-medium">Dashboard/</span>
+            <span className="text-[#2B3674] font-bold text-xl">User Pannel</span>
           </div>
 
           <button
             onClick={() => setShowAddModal(true)}
-            className="px-5 py-2.5 bg-red-500 hover:bg-red-600 active:bg-red-700 text-white text-xs font-bold font-mono rounded-[10px] shadow-[0px_0px_15px_0px_rgba(239,68,68,0.15)] flex items-center justify-center gap-2 cursor-pointer transition-all tracking-wider uppercase"
+            className="px-5 py-2.5 bg-[#4318FF] hover:bg-[#3311CC] active:bg-[#2309A0] text-white text-xs font-bold font-mono rounded-[10px] shadow-[0px_0px_15px_0px_rgba(67,24,255,0.15)] flex items-center justify-center gap-2 cursor-pointer transition-all tracking-wider uppercase"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -174,10 +174,10 @@ export default function UserPanelPage() {
         </div>
 
         {/* Header Panel */}
-        <div className="w-full bg-neutral-900 border border-zinc-800 rounded-2xl p-6 relative overflow-hidden shadow-2xl">
-          <div className="size-64 absolute -right-24 -top-24 bg-red-500/5 rounded-full blur-[80px] pointer-events-none"></div>
+        <div className="w-full bg-white border border-gray-100 rounded-2xl p-6 relative overflow-hidden shadow-sm">
+          <div className="size-64 absolute -right-24 -top-24 bg-[#4318FF]/5 rounded-full blur-[80px] pointer-events-none"></div>
           <div className="flex items-start gap-4">
-            <div className="w-12 h-12 bg-white/10 rounded-2xl flex justify-center items-center shrink-0 text-red-500">
+            <div className="w-12 h-12 bg-gray-50 rounded-2xl flex justify-center items-center shrink-0 text-[#4318FF]">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="20"
@@ -194,10 +194,10 @@ export default function UserPanelPage() {
               </svg>
             </div>
             <div className="flex-1 space-y-1">
-              <h2 className="text-white text-2xl font-bold font-sans">
+              <h2 className="text-[#2B3674] text-2xl font-bold font-sans">
                 Personnel & Access Control
               </h2>
-              <p className="text-gray-400 text-xs font-mono font-normal leading-relaxed">
+              <p className="text-[#A3AED0] text-xs font-mono font-normal leading-relaxed">
                 Manage operators, system administrators, and role-based permissions.
               </p>
             </div>

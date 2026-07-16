@@ -53,7 +53,7 @@ export default function AddStockForm({
     <div className="flex flex-col gap-6 w-full">
       <div className="flex flex-col gap-1.5">
         <div className="flex items-center gap-2">
-          <div className="w-6 h-6 text-red-500 flex items-center justify-center">
+          <div className="w-6 h-6 text-[#4318FF] flex items-center justify-center">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="18"
@@ -67,18 +67,18 @@ export default function AddStockForm({
               <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
             </svg>
           </div>
-          <h2 className="text-white text-2xl font-bold font-sans">
+          <h2 className="text-[#2B3674] text-2xl font-bold font-sans">
             Add New Stock Entry
           </h2>
         </div>
-        <p className="text-neutral-500 text-xs font-mono font-normal">
+        <p className="text-[#A3AED0] text-xs font-mono font-normal">
           Register components into the central MRO database.
         </p>
       </div>
 
       <form
         onSubmit={handleAddStock}
-        className="w-full bg-neutral-900 border border-zinc-800 rounded-2xl p-8 shadow-xl"
+        className="w-full bg-white border border-gray-100 rounded-2xl p-8 shadow-sm"
       >
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-end">
           {/* Component Name */}
@@ -114,14 +114,14 @@ export default function AddStockForm({
 
           {/* Category */}
           <div className="flex flex-col gap-1.5 w-full">
-            <span className="text-gray-500 text-xs font-normal font-mono uppercase tracking-wide px-1">
+            <span className="text-[#A3AED0] text-xs font-normal font-mono uppercase tracking-wide px-1">
               Category
             </span>
             <Dropdown
               options={categoryOptions}
               value={stockCategory}
               onChange={(e) => setStockCategory(e.target.value)}
-              className="w-full h-10 border-zinc-800"
+              className="w-full h-10 border-gray-100"
             />
           </div>
 
@@ -164,7 +164,7 @@ export default function AddStockForm({
 
           {/* Criticality Level */}
           <div className="flex flex-col gap-1.5 w-full">
-            <span className="text-gray-500 text-xs font-normal font-mono uppercase tracking-wide px-1">
+            <span className="text-[#A3AED0] text-xs font-normal font-mono uppercase tracking-wide px-1">
               Criticality Level
             </span>
             <Dropdown
@@ -175,7 +175,7 @@ export default function AddStockForm({
               ]}
               value={criticality}
               onChange={(e) => setCriticality(e.target.value)}
-              className="w-full h-10 border-zinc-800"
+              className="w-full h-10 border-gray-100"
             />
           </div>
 
@@ -194,7 +194,7 @@ export default function AddStockForm({
         <div className="mt-8 flex justify-end">
           <button
             type="submit"
-            className="px-6 py-3 bg-red-500 hover:bg-red-600 active:bg-red-700 text-white text-xs font-bold font-mono rounded-[10px] shadow-[0px_0px_15px_0px_rgba(239,68,68,0.20)] flex items-center gap-2 cursor-pointer transition-all uppercase tracking-wider"
+            className="px-6 py-3 bg-[#4318FF] hover:bg-[#4318FF]/90 active:bg-[#4318FF]/80 text-white text-xs font-bold font-mono rounded-[10px] shadow-md flex items-center gap-2 cursor-pointer transition-all uppercase tracking-wider"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"

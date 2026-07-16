@@ -22,9 +22,9 @@ export default function MachineTable({ machineryItems, handleDeleteMachine, read
   });
 
   return (
-    <div className="w-full bg-neutral-900 border border-zinc-800 rounded-2xl overflow-hidden shadow-2xl p-6 flex flex-col gap-6">
+    <div className="w-full bg-white border-none rounded-2xl overflow-hidden shadow-sm p-6 flex flex-col gap-6">
       {/* Search and Filters */}
-      <div className="flex flex-col md:flex-row gap-4 justify-between items-center bg-zinc-950/40 border border-zinc-850 p-4 rounded-xl">
+      <div className="flex flex-col md:flex-row gap-4 justify-between items-center bg-[#F4F7FE] border border-white p-4 rounded-xl">
         <div className="relative w-full md:w-80">
           <div className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500 w-4 h-4 flex items-center justify-center">
             <svg
@@ -45,16 +45,16 @@ export default function MachineTable({ machineryItems, handleDeleteMachine, read
             placeholder="Search Machine Name or ID..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full h-9 pl-9 pr-4 bg-zinc-950 text-white rounded-lg border border-zinc-800 focus:border-blue-500 focus:outline-none transition-colors text-xs font-mono placeholder-zinc-600"
+            className="w-full h-9 pl-9 pr-4 bg-white text-[#2B3674] rounded-lg border border-gray-100 focus:border-blue-500 focus:outline-none transition-colors text-xs font-mono placeholder-[#A3AED0]"
           />
         </div>
 
         <div className="flex items-center gap-2 w-full md:w-auto justify-end">
-          <span className="text-[10px] font-mono text-zinc-500 uppercase">Status:</span>
+          <span className="text-[10px] font-mono text-[#A3AED0] uppercase">Status:</span>
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="h-9 px-3 bg-zinc-950 border border-zinc-800 text-zinc-300 text-xs font-mono rounded-lg focus:outline-none focus:border-zinc-700 cursor-pointer"
+            className="h-9 px-3 bg-white border border-gray-100 text-[#2B3674] text-xs font-mono rounded-lg focus:outline-none focus:border-blue-500 cursor-pointer"
           >
             <option value="ALL">All Status</option>
             <option value="OPERATIONAL">Operational</option>
@@ -68,13 +68,13 @@ export default function MachineTable({ machineryItems, handleDeleteMachine, read
       <div className="overflow-x-auto w-full text-xs font-mono">
         <table className="w-full text-left border-collapse">
           <thead>
-            <tr className="border-b border-zinc-800 text-gray-500 text-[10px] uppercase font-bold">
+            <tr className="border-b border-gray-100 text-[#A3AED0] text-[10px] uppercase font-bold">
               <th className="pb-3 px-4">Machine / ID</th>
               <th className="pb-3 px-4">Required Spare Parts</th>
               <th className="pb-3 px-4">Last Maintenance</th>
               <th className="pb-3 px-4">Standard Schedule</th>
               <th className="pb-3 px-4">
-                <span className="text-cyan-500">AI Prediction</span>
+                <span className="text-blue-500">AI Prediction</span>
               </th>
               <th className="pb-3 px-4">Status</th>
               {!readOnly && <th className="pb-3 px-4 text-right">Actions</th>}
@@ -91,36 +91,36 @@ export default function MachineTable({ machineryItems, handleDeleteMachine, read
               filteredMachines.map((m) => (
                 <tr
                   key={m.id}
-                  className="border-b border-zinc-800/50 text-neutral-400 hover:text-zinc-200 transition-colors"
+                  className="border-b border-gray-50 text-[#A3AED0] hover:bg-gray-50/50 hover:text-[#2B3674] transition-colors"
                 >
-                  <td className="py-3.5 px-4 font-bold text-gray-300">
+                  <td className="py-3.5 px-4 font-bold text-[#2B3674]">
                     {m.machineName}
                     <br />
-                    <span className="text-[9px] font-normal text-gray-500">{m.id}</span>
+                    <span className="text-[9px] font-normal text-[#A3AED0]">{m.id}</span>
                   </td>
-                  <td className="py-3.5 px-4 font-sans text-gray-200">
+                  <td className="py-3.5 px-4 font-sans text-[#2B3674]">
                     <div className="flex flex-wrap gap-1">
                       {m.requiredParts.map((part, idx) => (
                         <span
                           key={idx}
-                          className="px-2 py-0.5 bg-neutral-950 border border-zinc-850 rounded text-[9px]"
+                          className="px-2 py-0.5 bg-gray-50 border border-gray-100 text-[#A3AED0] rounded text-[9px]"
                         >
                           {part}
                         </span>
                       ))}
                     </div>
                   </td>
-                  <td className="py-3.5 px-4 text-gray-400 font-mono">{m.lastMaintenance}</td>
-                  <td className="py-3.5 px-4 text-gray-450 font-mono">{m.standardSchedule}</td>
-                  <td className="py-3.5 px-4 text-cyan-400 font-mono font-bold">{m.aiPrediction}</td>
+                  <td className="py-3.5 px-4 text-[#A3AED0] font-mono">{m.lastMaintenance}</td>
+                  <td className="py-3.5 px-4 text-[#A3AED0] font-mono">{m.standardSchedule}</td>
+                  <td className="py-3.5 px-4 text-blue-500 font-mono font-bold">{m.aiPrediction}</td>
                   <td className="py-3.5 px-4 font-sans">
                     <span
-                      className={`px-2 py-0.5 rounded text-[9px] font-bold border ${
+                      className={`px-2 py-0.5 rounded text-[9px] font-bold ${
                         m.status.toUpperCase() === "OPERATIONAL" || m.status.toUpperCase() === "HEALTHY"
-                          ? "bg-green-500/10 text-green-500 border-green-500/20"
+                          ? "bg-green-50 text-green-500"
                           : m.status.toUpperCase() === "WARNING"
-                          ? "bg-yellow-500/10 text-yellow-500 border-yellow-500/20"
-                          : "bg-red-500/10 text-red-500 border-red-500/20"
+                          ? "bg-yellow-50 text-yellow-500"
+                          : "bg-red-50 text-red-500"
                       }`}
                     >
                       {m.status}

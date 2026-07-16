@@ -19,10 +19,10 @@ export default function UserControlsPanel({
   handleExportCSV,
 }: UserControlsPanelProps) {
   return (
-    <div className="p-4 bg-neutral-900 border border-zinc-800 rounded-2xl inline-flex flex-col sm:flex-row justify-between items-center gap-4 shadow-xl">
+    <div className="p-4 bg-white border border-gray-100 rounded-2xl inline-flex flex-col sm:flex-row justify-between items-center gap-4 shadow-sm">
       {/* Search Input */}
       <div className="relative w-full sm:w-80">
-        <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 w-4 h-4 flex items-center justify-center">
+        <div className="absolute left-3 top-1/2 -translate-y-1/2 text-[#A3AED0] w-4 h-4 flex items-center justify-center">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="14"
@@ -41,14 +41,14 @@ export default function UserControlsPanel({
           placeholder="Search by name or EMP-ID..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full h-9 pl-9 pr-4 bg-neutral-950 text-white rounded-[10px] border border-zinc-800 focus:border-red-500 focus:outline-none transition-colors text-xs font-mono placeholder-neutral-600"
+          className="w-full h-9 pl-9 pr-4 bg-white text-[#2B3674] rounded-[10px] border border-gray-100 focus:border-[#4318FF] focus:outline-none transition-colors text-xs font-mono placeholder-[#A3AED0]"
         />
       </div>
 
       {/* Filter buttons */}
       <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
         <div className="flex items-center gap-1.5">
-          <span className="text-[10px] font-mono text-gray-500 uppercase">Role:</span>
+          <span className="text-[10px] font-mono text-[#A3AED0] uppercase">Role:</span>
           <Dropdown
             options={[
               { value: "ALL", label: "All Roles" },
@@ -58,13 +58,13 @@ export default function UserControlsPanel({
             ]}
             value={selectedRoleFilter}
             onChange={(e) => setSelectedRoleFilter(e.target.value)}
-            className="h-9 border-zinc-800 py-1"
+            className="h-9 border-gray-100 py-1"
           />
         </div>
 
         <button
           onClick={handleExportCSV}
-          className="px-4 py-2 bg-neutral-950 hover:bg-neutral-800 active:bg-neutral-900 text-gray-400 hover:text-white text-xs font-mono rounded-[10px] border border-zinc-800 transition-colors cursor-pointer"
+          className="px-4 py-2 bg-gray-50 hover:bg-gray-100 active:bg-gray-200 text-[#4318FF] text-xs font-mono rounded-[10px] border border-gray-100 transition-colors cursor-pointer font-bold"
         >
           EXPORT CSV
         </button>

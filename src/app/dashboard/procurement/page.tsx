@@ -47,18 +47,18 @@ export default function ProcurementDashboard() {
         {/* Header Section / Breadcrumbs */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="flex items-center gap-1.5 text-2xl font-semibold tracking-wide">
-            <span className="text-neutral-500 font-medium">Dashboard/</span>
-            <span className="text-neutral-400 font-light text-xl">Procurement Workspace</span>
+            <span className="text-gray-500 font-medium">Dashboard/</span>
+            <span className="text-[#2B3674] font-bold text-xl">Procurement Workspace</span>
           </div>
         </div>
 
         {/* Onboarding Welcome Announcement Card */}
-        <div className="w-full bg-neutral-900 border border-zinc-800 rounded-2xl p-8 shadow-xl flex flex-col justify-center">
+        <div className="w-full bg-white border border-gray-100 rounded-2xl p-8 shadow-sm flex flex-col justify-center">
           <div className="z-10 flex flex-col gap-1">
-            <h2 className="text-white text-3xl font-bold tracking-tight font-sans leading-9">
+            <h2 className="text-[#2B3674] text-3xl font-bold tracking-tight font-sans leading-9">
               Welcome to ToolCrib Procurement Center
             </h2>
-            <p className="text-neutral-400 text-sm font-normal font-sans leading-5">
+            <p className="text-[#A3AED0] text-sm font-normal font-sans leading-5">
               Fulfillment desk active. Track active shipments, verify purchase orders, and update Kanban workflows.
             </p>
           </div>

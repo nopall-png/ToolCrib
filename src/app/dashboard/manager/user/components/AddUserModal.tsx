@@ -47,19 +47,19 @@ export default function AddUserModal({
 
   return (
     <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-neutral-900 border border-zinc-800 rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl relative">
-        <div className="h-1 bg-red-500 w-full"></div>
+      <div className="bg-white border border-gray-100 rounded-2xl w-full max-w-lg overflow-hidden shadow-sm relative">
+        <div className="h-1 bg-[#4318FF] w-full"></div>
 
         <div className="p-6 flex flex-col gap-6">
           {/* Modal Title */}
           <div className="flex justify-between items-start">
             <div>
-              <h3 className="text-white text-lg font-bold">Add New Personnel</h3>
-              <p className="text-gray-500 text-xs font-mono mt-0.5">Register operator to central system.</p>
+              <h3 className="text-[#2B3674] text-lg font-bold">Add New Personnel</h3>
+              <p className="text-[#A3AED0] text-xs font-mono mt-0.5">Register operator to central system.</p>
             </div>
             <button
               onClick={() => setShowAddModal(false)}
-              className="text-gray-500 hover:text-white p-1 transition-colors cursor-pointer"
+              className="text-[#A3AED0] hover:text-[#2B3674] p-1 transition-colors cursor-pointer"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -112,7 +112,7 @@ export default function AddUserModal({
                 onChange={(e) => setNewEmpId(e.target.value)}
               />
               <div className="flex flex-col gap-1.5">
-                <span className="text-gray-500 text-xs font-normal font-mono uppercase tracking-wide px-1">
+                <span className="text-[#A3AED0] text-xs font-normal font-mono uppercase tracking-wide px-1">
                   Security Role
                 </span>
                 <Dropdown
@@ -123,7 +123,7 @@ export default function AddUserModal({
                   ]}
                   value={newRole}
                   onChange={(e) => setNewRole(e.target.value as "ENGINEER" | "PROCUREMENT" | "MANAGER")}
-                  className="w-full h-10 border-zinc-800"
+                  className="w-full h-10 border-gray-100"
                 />
               </div>
             </div>
@@ -137,7 +137,7 @@ export default function AddUserModal({
                 onChange={(e) => setNewDepartment(e.target.value)}
               />
               <div className="flex flex-col gap-1.5">
-                <span className="text-gray-500 text-xs font-normal font-mono uppercase tracking-wide px-1">
+                <span className="text-[#A3AED0] text-xs font-normal font-mono uppercase tracking-wide px-1">
                   Shift
                 </span>
                 <Dropdown
@@ -150,23 +150,23 @@ export default function AddUserModal({
                   ]}
                   value={newShift}
                   onChange={(e) => setNewShift(e.target.value)}
-                  className="w-full h-10 border-zinc-800"
+                  className="w-full h-10 border-gray-100"
                 />
               </div>
             </div>
 
             {/* Submit buttons */}
-            <div className="flex justify-end gap-3 pt-4 border-t border-zinc-800/80">
+            <div className="flex justify-end gap-3 pt-4 border-t border-gray-100">
               <button
                 type="button"
                 onClick={() => setShowAddModal(false)}
-                className="px-4 py-2 text-xs font-mono font-bold text-gray-500 hover:text-white transition-colors cursor-pointer"
+                className="px-4 py-2 text-xs font-mono font-bold text-[#A3AED0] hover:text-[#2B3674] transition-colors cursor-pointer"
               >
                 CANCEL
               </button>
               <button
                 type="submit"
-                className="px-5 py-2 bg-red-500 hover:bg-red-600 active:bg-red-700 text-white text-xs font-bold font-mono rounded-[10px] transition-all cursor-pointer uppercase tracking-wider"
+                className="px-5 py-2 bg-[#4318FF] hover:bg-[#3311CC] active:bg-[#2309A0] text-white text-xs font-bold font-mono rounded-[10px] transition-all cursor-pointer uppercase tracking-wider shadow-sm"
               >
                 REGISTER USER
               </button>

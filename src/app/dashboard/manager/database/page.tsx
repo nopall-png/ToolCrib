@@ -106,18 +106,17 @@ export default function DatabaseInputPage() {
         
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="flex items-center gap-1.5 text-2xl font-semibold tracking-wide">
-            <span className="text-neutral-500 font-medium">Dashboard/</span>
-            <span className="text-neutral-400 font-light text-xl">Database Control</span>
+            {/* Breadcrumbs moved to Navbar */}
           </div>
 
           {/* Tab Switcher */}
-          <div className="flex bg-neutral-900 border border-zinc-800 p-1.5 rounded-xl self-start md:self-auto">
+          <div className="flex bg-white shadow-sm border border-gray-100 p-1.5 rounded-xl self-start md:self-auto">
             <button
               onClick={() => setActiveTab("directory")}
               className={`px-4 py-2 text-xs font-mono font-bold uppercase rounded-lg transition-colors cursor-pointer ${
                 activeTab === "directory"
-                  ? "bg-zinc-800 text-white"
-                  : "text-zinc-500 hover:text-zinc-300"
+                  ? "bg-[#4318FF] text-white"
+                  : "text-[#A3AED0] hover:text-[#2B3674]"
               }`}
             >
               Master Directory
@@ -126,13 +125,13 @@ export default function DatabaseInputPage() {
               onClick={() => setActiveTab("approvals")}
               className={`px-4 py-2 text-xs font-mono font-bold uppercase rounded-lg transition-colors cursor-pointer flex items-center gap-2 ${
                 activeTab === "approvals"
-                  ? "bg-zinc-800 text-white"
-                  : "text-zinc-500 hover:text-zinc-300"
+                  ? "bg-[#4318FF] text-white"
+                  : "text-[#A3AED0] hover:text-[#2B3674]"
               }`}
             >
               Approvals Queue
               {pendingCount > 0 && (
-                <span className="w-5 h-5 rounded-full bg-red-500/10 border border-red-500/20 text-red-400 flex items-center justify-center text-[9px] font-bold">
+                <span className="w-5 h-5 rounded-full bg-red-50 border border-red-100 text-red-500 flex items-center justify-center text-[9px] font-bold">
                   {pendingCount}
                 </span>
               )}
@@ -144,7 +143,7 @@ export default function DatabaseInputPage() {
           <div className="flex flex-col gap-8 animate-fadeIn">
             <DatabaseStatsCards stats={stats} />
             <StockTable inventoryItems={inventoryItems} handleDeleteStock={handleDeleteStock} />
-            <div className="w-full h-px bg-gradient-to-r from-transparent via-zinc-800 to-transparent"></div>
+            <div className="w-full h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent"></div>
             <MachineTable machineryItems={machineryItems} handleDeleteMachine={handleDeleteMachine} />
           </div>
         ) : (

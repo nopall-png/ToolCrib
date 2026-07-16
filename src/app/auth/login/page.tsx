@@ -35,7 +35,7 @@ export default function LoginPage() {
             {/* Logo */}
             <div className="pb-5">
               <Image
-                src="/logo.png"
+                src="/logo1.png"
                 alt="ToolCrib Logo"
                 width={54}
                 height={53}

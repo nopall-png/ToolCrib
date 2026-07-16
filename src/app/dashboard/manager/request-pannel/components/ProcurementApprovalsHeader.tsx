@@ -4,11 +4,11 @@ import React from "react";
 
 export default function ProcurementApprovalsHeader() {
   return (
-    <div className="w-full bg-neutral-900 border border-zinc-800 rounded-2xl p-6 relative overflow-hidden shadow-2xl">
+    <div className="w-full bg-white border-none rounded-2xl p-6 relative overflow-hidden shadow-sm">
       <div className="size-64 absolute -right-24 -top-24 bg-blue-500/5 rounded-full blur-[80px] pointer-events-none"></div>
       
       <div className="flex items-start gap-4">
-        <div className="w-12 h-12 bg-white/10 rounded-2xl flex justify-center items-center shrink-0 text-blue-500">
+        <div className="w-12 h-12 bg-blue-50 rounded-2xl flex justify-center items-center shrink-0 text-blue-500">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="20"
@@ -25,10 +25,10 @@ export default function ProcurementApprovalsHeader() {
           </svg>
         </div>
         <div className="flex-1 space-y-1">
-          <h2 className="text-white text-2xl font-bold font-sans">
+          <h2 className="text-[#2B3674] text-2xl font-bold font-sans">
             Procurement Approvals
           </h2>
-          <p className="text-gray-400 text-xs font-mono font-normal leading-relaxed">
+          <p className="text-[#A3AED0] text-xs font-mono font-normal leading-relaxed">
             Review and approve sparepart requests from mechanics.
           </p>
         </div>

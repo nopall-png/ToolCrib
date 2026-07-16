@@ -57,10 +57,9 @@ export default function RequestPanelPage() {
         {/* Header Section / Breadcrumbs */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="flex items-center gap-1.5 text-2xl font-semibold tracking-wide">
-            <span className="text-neutral-500 font-medium">Dashboard/</span>
-            <span className="text-neutral-400 font-light text-xl">Request Pannel</span>
+            {/* Breadcrumbs moved to Navbar */}
           </div>
-          <div className="text-[10px] font-mono bg-neutral-900 border border-zinc-800 text-neutral-400 px-3 py-1.5 rounded-lg">
+          <div className="text-[10px] font-mono bg-white border border-gray-100 text-[#A3AED0] px-3 py-1.5 rounded-lg shadow-sm">
             SYS NODE: REQ_SYS_STAGE_2
           </div>
         </div>

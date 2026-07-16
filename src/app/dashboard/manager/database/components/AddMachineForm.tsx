@@ -26,7 +26,7 @@ export default function AddMachineForm({
     <div className="flex flex-col gap-6 w-full">
       <div className="flex flex-col gap-1.5">
         <div className="flex items-center gap-2">
-          <div className="w-6 h-6 text-blue-500 flex items-center justify-center">
+          <div className="w-6 h-6 text-[#4318FF] flex items-center justify-center">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="18"
@@ -42,18 +42,18 @@ export default function AddMachineForm({
               <line x1="6" y1="18" x2="6.01" y2="18"></line>
             </svg>
           </div>
-          <h2 className="text-white text-2xl font-bold font-sans">
+          <h2 className="text-[#2B3674] text-2xl font-bold font-sans">
             Machinery & Maintenance
           </h2>
         </div>
-        <p className="text-neutral-500 text-xs font-mono font-normal">
+        <p className="text-[#A3AED0] text-xs font-mono font-normal">
           Register machinery, track required parts, and monitor AI predictive maintenance schedules.
         </p>
       </div>
 
       <form
         onSubmit={handleAddMachine}
-        className="w-full bg-neutral-900 border border-zinc-800 rounded-2xl p-8 shadow-xl"
+        className="w-full bg-white border border-gray-100 rounded-2xl p-8 shadow-sm"
       >
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-end">
           {/* Machine Name */}
@@ -70,7 +70,7 @@ export default function AddMachineForm({
           {/* Last Maintenance Date */}
           <div className="flex flex-col gap-1.5 w-full">
             <div className="flex items-center gap-1.5 px-1">
-              <span className="text-gray-500 text-xs font-normal font-mono uppercase tracking-wide">
+              <span className="text-[#A3AED0] text-xs font-normal font-mono uppercase tracking-wide">
                 Last Maintenance Date
               </span>
               <span className="text-red-500 text-xs font-normal">*</span>
@@ -80,7 +80,7 @@ export default function AddMachineForm({
               required
               value={lastMaintDate}
               onChange={(e) => setLastMaintDate(e.target.value)}
-              className="w-full h-10 px-4 bg-neutral-950/50 text-white rounded-[10px] border border-zinc-800 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none transition-all text-sm font-mono cursor-pointer"
+              className="w-full h-10 px-4 bg-white text-[#2B3674] rounded-[10px] border border-gray-100 focus:border-[#4318FF] focus:ring-1 focus:ring-[#4318FF] focus:outline-none transition-all text-sm font-mono cursor-pointer shadow-sm"
             />
           </div>
 
@@ -99,7 +99,7 @@ export default function AddMachineForm({
         <div className="mt-8 flex justify-end">
           <button
             type="submit"
-            className="px-6 py-3 bg-blue-500 hover:bg-blue-600 active:bg-blue-700 text-white text-xs font-bold font-mono rounded-[10px] shadow-[0px_0px_15px_0px_rgba(59,130,246,0.20)] flex items-center gap-2 cursor-pointer transition-all uppercase tracking-wider"
+            className="px-6 py-3 bg-[#4318FF] hover:bg-[#4318FF]/90 active:bg-[#4318FF]/80 text-white text-xs font-bold font-mono rounded-[10px] shadow-md flex items-center gap-2 cursor-pointer transition-all uppercase tracking-wider"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"

@@ -15,16 +15,16 @@ export default function DatabaseStatsCards({ stats }: DatabaseStatsCardsProps) {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
       {/* Card 1: Product */}
-      <div className="bg-neutral-900 border border-zinc-800 rounded-[20px] p-6 relative flex items-center justify-between h-40">
+      <div className="bg-white shadow-sm rounded-[20px] p-6 relative flex items-center justify-between h-40">
         <div className="flex flex-col gap-2 z-10">
-          <span className="text-white text-3xl font-bold font-sans tracking-wide leading-8">
+          <span className="text-[#2B3674] text-3xl font-bold font-sans tracking-wide leading-8">
             {stats.productsCount}
           </span>
-          <span className="text-neutral-400 text-base font-normal font-sans tracking-wide">
+          <span className="text-[#A3AED0] text-base font-normal font-sans tracking-wide">
             Product
           </span>
         </div>
-        <div className="w-14 h-12 bg-white/10 rounded-2xl flex justify-center items-center shrink-0 text-red-500 z-10">
+        <div className="w-14 h-12 bg-red-50 rounded-2xl flex justify-center items-center shrink-0 text-red-500 z-10">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="20"
@@ -40,16 +40,16 @@ export default function DatabaseStatsCards({ stats }: DatabaseStatsCardsProps) {
       </div>
 
       {/* Card 2: User */}
-      <div className="bg-neutral-900 border border-zinc-800 rounded-[20px] p-6 relative flex items-center justify-between h-40">
+      <div className="bg-white shadow-sm rounded-[20px] p-6 relative flex items-center justify-between h-40">
         <div className="flex flex-col gap-2 z-10">
-          <span className="text-white text-3xl font-bold font-sans tracking-wide leading-8">
+          <span className="text-[#2B3674] text-3xl font-bold font-sans tracking-wide leading-8">
             {stats.usersCount}
           </span>
-          <span className="text-neutral-400 text-base font-normal font-sans tracking-wide">
+          <span className="text-[#A3AED0] text-base font-normal font-sans tracking-wide">
             User
           </span>
         </div>
-        <div className="w-14 h-12 bg-white/10 rounded-2xl flex justify-center items-center shrink-0 text-yellow-500 z-10">
+        <div className="w-14 h-12 bg-yellow-50 rounded-2xl flex justify-center items-center shrink-0 text-yellow-500 z-10">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="20"
@@ -68,16 +68,16 @@ export default function DatabaseStatsCards({ stats }: DatabaseStatsCardsProps) {
       </div>
 
       {/* Card 3: Total Incoming Items */}
-      <div className="bg-neutral-900 border border-zinc-800 rounded-[20px] p-6 relative flex items-center justify-between h-40">
+      <div className="bg-white shadow-sm rounded-[20px] p-6 relative flex items-center justify-between h-40">
         <div className="flex flex-col gap-2 z-10">
-          <span className="text-white text-3xl font-bold font-sans tracking-wide leading-8">
+          <span className="text-[#2B3674] text-3xl font-bold font-sans tracking-wide leading-8">
             {stats.incomingItemsCount}
           </span>
-          <span className="text-neutral-400 text-base font-normal font-sans tracking-wide">
+          <span className="text-[#A3AED0] text-base font-normal font-sans tracking-wide">
             Total Incoming Items
           </span>
         </div>
-        <div className="w-14 h-12 bg-white/10 rounded-2xl flex justify-center items-center shrink-0 text-blue-500 z-10">
+        <div className="w-14 h-12 bg-blue-50 rounded-2xl flex justify-center items-center shrink-0 text-blue-500 z-10">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="20"
@@ -94,16 +94,16 @@ export default function DatabaseStatsCards({ stats }: DatabaseStatsCardsProps) {
       </div>
 
       {/* Card 4: Total Items */}
-      <div className="bg-neutral-900 border border-zinc-800 rounded-[20px] p-6 relative flex items-center justify-between h-40">
+      <div className="bg-white shadow-sm rounded-[20px] p-6 relative flex items-center justify-between h-40">
         <div className="flex flex-col gap-2 z-10">
-          <span className="text-white text-3xl font-bold font-sans tracking-wide leading-8">
+          <span className="text-[#2B3674] text-3xl font-bold font-sans tracking-wide leading-8">
             {stats.totalItemsCount.toLocaleString()}
           </span>
-          <span className="text-neutral-400 text-base font-normal font-sans tracking-wide">
+          <span className="text-[#A3AED0] text-base font-normal font-sans tracking-wide">
             Total Items
           </span>
         </div>
-        <div className="w-14 h-12 bg-white/10 rounded-2xl flex justify-center items-center shrink-0 text-green-500 z-10">
+        <div className="w-14 h-12 bg-green-50 rounded-2xl flex justify-center items-center shrink-0 text-green-500 z-10">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="20"

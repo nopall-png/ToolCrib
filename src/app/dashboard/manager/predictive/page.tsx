@@ -97,49 +97,47 @@ export default function PredictivePage() {
         {/* Minimal Header */}
         <div className="flex flex-col gap-1">
           <div className="flex items-center gap-1 text-sm font-mono text-zinc-500">
-            <span>Dashboard</span>
-            <span>/</span>
-            <span className="text-zinc-400">Predictive Engine</span>
+            {/* Breadcrumbs handled by Navbar */}
           </div>
-          <h1 className="text-white text-2xl font-bold tracking-tight">Logistics & Forecasting</h1>
-          <p className="text-zinc-500 text-xs font-sans">
+          <h1 className="text-[#2B3674] text-2xl font-bold tracking-tight">Logistics & Forecasting</h1>
+          <p className="text-[#A3AED0] text-xs font-sans">
             Logistical ABC/XYZ classification, semantic duplicate checking, and Prophet time-series projections.
           </p>
         </div>
 
         {/* Minimal Tab Switcher */}
-        <div className="flex gap-6 border-b border-zinc-800/80 mt-2">
+        <div className="flex gap-6 border-b border-gray-200 mt-2">
           <button
             onClick={() => setActiveTab("matrix")}
             className={`pb-2.5 text-xs font-semibold tracking-wider transition-colors cursor-pointer relative ${
-              activeTab === "matrix" ? "text-white" : "text-zinc-500 hover:text-zinc-300"
+              activeTab === "matrix" ? "text-[#4318FF]" : "text-[#A3AED0] hover:text-[#2B3674]"
             }`}
           >
             Inventory Value & Stability
             {activeTab === "matrix" && (
-              <span className="absolute bottom-0 left-0 w-full h-[1.5px] bg-white rounded"></span>
+              <span className="absolute bottom-0 left-0 w-full h-[1.5px] bg-[#4318FF] rounded"></span>
             )}
           </button>
           <button
             onClick={() => setActiveTab("duplicates")}
             className={`pb-2.5 text-xs font-semibold tracking-wider transition-colors cursor-pointer relative ${
-              activeTab === "duplicates" ? "text-white" : "text-zinc-500 hover:text-zinc-300"
+              activeTab === "duplicates" ? "text-[#4318FF]" : "text-[#A3AED0] hover:text-[#2B3674]"
             }`}
           >
             Duplicate Scanner
             {activeTab === "duplicates" && (
-              <span className="absolute bottom-0 left-0 w-full h-[1.5px] bg-white rounded"></span>
+              <span className="absolute bottom-0 left-0 w-full h-[1.5px] bg-[#4318FF] rounded"></span>
             )}
           </button>
           <button
             onClick={() => setActiveTab("forecast")}
             className={`pb-2.5 text-xs font-semibold tracking-wider transition-colors cursor-pointer relative ${
-              activeTab === "forecast" ? "text-white" : "text-zinc-500 hover:text-zinc-300"
+              activeTab === "forecast" ? "text-[#4318FF]" : "text-[#A3AED0] hover:text-[#2B3674]"
             }`}
           >
             Demand Forecasting
             {activeTab === "forecast" && (
-              <span className="absolute bottom-0 left-0 w-full h-[1.5px] bg-white rounded"></span>
+              <span className="absolute bottom-0 left-0 w-full h-[1.5px] bg-[#4318FF] rounded"></span>
             )}
           </button>
           <button
@@ -154,12 +152,12 @@ export default function PredictivePage() {
               }
             }}
             className={`pb-2.5 text-xs font-semibold tracking-wider transition-colors cursor-pointer relative ${
-              activeTab === "critical" ? "text-white" : "text-zinc-500 hover:text-zinc-300"
+              activeTab === "critical" ? "text-[#4318FF]" : "text-[#A3AED0] hover:text-[#2B3674]"
             }`}
           >
             Critical Spare Engine
             {activeTab === "critical" && (
-              <span className="absolute bottom-0 left-0 w-full h-[1.5px] bg-white rounded"></span>
+              <span className="absolute bottom-0 left-0 w-full h-[1.5px] bg-[#4318FF] rounded"></span>
             )}
           </button>
           <button
@@ -175,12 +173,12 @@ export default function PredictivePage() {
               }
             }}
             className={`pb-2.5 text-xs font-semibold tracking-wider transition-colors cursor-pointer relative ${
-              activeTab === "optimization" ? "text-white" : "text-zinc-500 hover:text-zinc-300"
+              activeTab === "optimization" ? "text-[#4318FF]" : "text-[#A3AED0] hover:text-[#2B3674]"
             }`}
           >
             Optimization
             {activeTab === "optimization" && (
-              <span className="absolute bottom-0 left-0 w-full h-[1.5px] bg-white rounded"></span>
+              <span className="absolute bottom-0 left-0 w-full h-[1.5px] bg-[#4318FF] rounded"></span>
             )}
           </button>
         </div>

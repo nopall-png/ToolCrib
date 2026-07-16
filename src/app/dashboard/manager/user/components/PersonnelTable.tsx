@@ -13,16 +13,16 @@ export default function PersonnelTable({
   handleDeleteUser,
 }: PersonnelTableProps) {
   return (
-    <div className="w-full bg-neutral-900 border border-zinc-800 rounded-2xl overflow-hidden shadow-2xl p-6 min-h-[300px]">
+    <div className="w-full bg-white border border-gray-100 rounded-2xl overflow-hidden shadow-sm p-6 min-h-[300px]">
       <div className="overflow-x-auto w-full text-xs font-mono">
         {filteredPersonnel.length === 0 ? (
-          <div className="py-16 text-center text-neutral-500 uppercase tracking-widest text-[10px]">
+          <div className="py-16 text-center text-[#A3AED0] uppercase tracking-widest text-[10px]">
             No personnel matching search filter.
           </div>
         ) : (
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="border-b border-zinc-800 text-gray-500 text-[10px] uppercase font-bold">
+              <tr className="border-b border-gray-100 text-[#A3AED0] text-[10px] uppercase font-bold">
                 <th className="pb-3.5 px-4">EMP-ID</th>
                 <th className="pb-3.5 px-4">Operator</th>
                 <th className="pb-3.5 px-4">Security Role</th>
@@ -42,19 +42,19 @@ export default function PersonnelTable({
                 return (
                   <tr
                     key={p.empId}
-                    className="border-b border-zinc-800/50 text-neutral-400 hover:text-zinc-200 transition-colors"
+                    className="border-b border-gray-50 text-[#A3AED0] hover:text-[#2B3674] hover:bg-gray-50/50 transition-colors"
                   >
-                    <td className="py-4 px-4 font-bold text-gray-400">{p.empId}</td>
+                    <td className="py-4 px-4 font-bold text-[#2B3674]">{p.empId}</td>
                     <td className="py-4 px-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-neutral-800 border border-zinc-850 flex items-center justify-center text-[10px] text-gray-400 font-sans font-bold">
+                        <div className="w-8 h-8 rounded-full bg-blue-50 border border-blue-100 flex items-center justify-center text-[10px] text-[#4318FF] font-sans font-bold">
                           {initials}
                         </div>
                         <div className="flex flex-col">
-                          <span className="font-sans text-gray-200 font-semibold leading-5 text-[13px]">
+                          <span className="font-sans text-[#2B3674] font-bold leading-5 text-[13px]">
                             {p.name}
                           </span>
-                          <span className="text-[9px] text-gray-500 font-mono flex items-center gap-1">
+                          <span className="text-[9px] text-[#A3AED0] font-mono flex items-center gap-1">
                             <svg
                               xmlns="http://www.w3.org/2000/svg"
                               width="10"
@@ -74,12 +74,12 @@ export default function PersonnelTable({
                     </td>
                     <td className="py-4 px-4">
                       <span
-                        className={`px-2.5 py-1 rounded-sm text-[9px] font-bold border inline-flex items-center gap-1 ${
+                        className={`px-2.5 py-1 rounded-sm text-[9px] font-bold flex items-center gap-1 ${
                           p.role === "MANAGER"
-                            ? "bg-red-500/10 text-red-500 border-red-500/20"
+                            ? "bg-red-50 text-red-500"
                             : p.role === "PROCUREMENT"
-                            ? "bg-blue-500/10 text-blue-500 border-blue-500/20"
-                            : "bg-zinc-800/40 text-gray-300 border-zinc-800"
+                            ? "bg-blue-50 text-blue-500"
+                            : "bg-gray-100 text-[#2B3674]"
                         }`}
                       >
                         <span className="w-1.5 h-1.5 rounded-full bg-current opacity-60"></span>
@@ -87,9 +87,9 @@ export default function PersonnelTable({
                       </span>
                     </td>
                     <td className="py-4 px-4 font-sans">
-                      <span className="text-gray-300 font-medium text-[13px]">{p.department}</span>
+                      <span className="text-[#2B3674] font-medium text-[13px]">{p.department}</span>
                       <br />
-                      <span className="text-gray-500 font-mono text-[10px]">{p.shift}</span>
+                      <span className="text-[#A3AED0] font-mono text-[10px]">{p.shift}</span>
                     </td>
                     <td className="py-4 px-4">
                       <div className="flex items-center gap-2">
@@ -99,15 +99,15 @@ export default function PersonnelTable({
                           )}
                           <span
                             className={`relative inline-flex rounded-full h-2 w-2 ${
-                              p.status === "ACTIVE" ? "bg-green-500" : "bg-gray-600"
+                              p.status === "ACTIVE" ? "bg-green-500" : "bg-gray-300"
                             }`}
                           ></span>
                         </span>
                         <div className="flex flex-col">
-                          <span className={`text-[10px] font-bold ${p.status === "ACTIVE" ? "text-gray-200" : "text-gray-500"}`}>
+                          <span className={`text-[10px] font-bold ${p.status === "ACTIVE" ? "text-green-600" : "text-[#A3AED0]"}`}>
                             {p.status}
                           </span>
-                          <span className="text-[9px] text-gray-600 font-normal leading-3">{p.lastActive}</span>
+                          <span className="text-[9px] text-[#A3AED0] font-normal leading-3">{p.lastActive}</span>
                         </div>
                       </div>
                     </td>
@@ -115,7 +115,7 @@ export default function PersonnelTable({
                       {p.empId !== "EMP-000" ? (
                         <button
                           onClick={() => handleDeleteUser(p.empId, p.name)}
-                          className="text-neutral-600 hover:text-red-500 p-1.5 rounded hover:bg-red-950/20 transition-all cursor-pointer"
+                          className="text-[#A3AED0] hover:text-red-500 p-1.5 rounded hover:bg-red-50 transition-all cursor-pointer"
                           title="Remove personnel"
                         >
                           <svg
@@ -132,7 +132,7 @@ export default function PersonnelTable({
                           </svg>
                         </button>
                       ) : (
-                        <span className="text-[9px] text-gray-600 px-1 font-mono uppercase select-none">System</span>
+                        <span className="text-[9px] text-[#A3AED0] px-1 font-mono uppercase select-none">System</span>
                       )}
                     </td>
                   </tr>

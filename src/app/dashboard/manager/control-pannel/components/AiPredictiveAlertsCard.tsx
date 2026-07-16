@@ -34,10 +34,10 @@ export default function AiPredictiveAlertsCard({ aiAlerts }: AiPredictiveAlertsC
             >
               <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2" />
             </svg>
-            <span className="text-neutral-500 font-mono text-[10px] uppercase">Connecting to Prophet Engine...</span>
+            <span className="text-[#A3AED0] font-mono text-[10px] uppercase">Connecting to Prophet Engine...</span>
           </div>
         ) : aiAlerts.length === 0 ? (
-          <div className="py-20 text-center text-neutral-500 font-mono text-[10px] uppercase">
+          <div className="py-20 text-center text-[#A3AED0] font-mono text-[10px] uppercase">
             Stock & machines are healthy. No alerts.
           </div>
         ) : (
@@ -46,21 +46,21 @@ export default function AiPredictiveAlertsCard({ aiAlerts }: AiPredictiveAlertsC
             return (
               <div
                 key={idx}
-                className={`p-3 border rounded-2xl flex items-center gap-3.5 ${
+                className={`p-3 border rounded-2xl flex items-center gap-3.5 shadow-sm ${
                   isMachine
                     ? alert.status === "CRITICAL"
-                      ? "bg-red-950/20 border-red-900/50"
-                      : "bg-yellow-950/20 border-yellow-900/50"
-                    : "bg-red-950/20 border-red-900/50"
+                      ? "bg-white border-red-100"
+                      : "bg-white border-yellow-100"
+                    : "bg-white border-red-100"
                 }`}
               >
                 <div
                   className={`w-12 h-12 rounded-lg border flex justify-center items-center shrink-0 ${
                     isMachine
                       ? alert.status === "CRITICAL"
-                        ? "bg-red-950/40 border-red-900/50 text-red-500"
-                        : "bg-yellow-950/40 border-yellow-900/50 text-yellow-500"
-                      : "bg-red-950/40 border-red-900/50 text-red-500"
+                        ? "bg-red-50 border-red-100 text-red-500"
+                        : "bg-yellow-50 border-yellow-100 text-yellow-500"
+                      : "bg-red-50 border-red-100 text-red-500"
                   }`}
                 >
                   {isMachine ? (
@@ -84,14 +84,14 @@ export default function AiPredictiveAlertsCard({ aiAlerts }: AiPredictiveAlertsC
                       <>
                         <span
                           className={`px-2 py-0.5 rounded-full text-[8px] font-mono font-medium ${
-                            alert.status === "CRITICAL" ? "bg-red-500/10 text-red-500" : "bg-yellow-500/10 text-yellow-500"
+                            alert.status === "CRITICAL" ? "bg-red-50 text-red-500" : "bg-yellow-50 text-yellow-500"
                           }`}
                         >
                           MACHINE {alert.status}
                         </span>
                         <span
                           className={`text-[10px] font-mono font-medium ${
-                            alert.status === "CRITICAL" ? "text-red-400" : "text-yellow-400"
+                            alert.status === "CRITICAL" ? "text-red-500" : "text-yellow-500"
                           }`}
                         >
                           {alert.machineId}
@@ -99,15 +99,15 @@ export default function AiPredictiveAlertsCard({ aiAlerts }: AiPredictiveAlertsC
                       </>
                     ) : (
                       <>
-                        <span className="px-2 py-0.5 rounded-full text-[8px] font-mono font-medium bg-red-500/10 text-red-500">
+                        <span className="px-2 py-0.5 rounded-full text-[8px] font-mono font-medium bg-red-50 text-red-500">
                           CLASS {alert.abcClass}
                         </span>
-                        <span className="text-red-400 text-xs font-mono font-medium">ROP: {alert.dynamicMinROP}</span>
+                        <span className="text-red-500 text-xs font-mono font-medium">ROP: {alert.dynamicMinROP}</span>
                       </>
                     )}
                   </div>
-                  <h4 className="text-zinc-200 text-xs font-semibold mt-1 font-sans truncate">{alert.name}</h4>
-                  <p className="text-neutral-400 text-[10px] font-mono mt-0.5 truncate">
+                  <h4 className="text-[#2B3674] text-xs font-bold mt-1 font-sans truncate">{alert.name}</h4>
+                  <p className="text-[#A3AED0] text-[10px] font-mono mt-0.5 truncate">
                     {isMachine ? `Last Maint: ${alert.lastMaintenance || "N/A"}` : `Needs restock to max: ${alert.dynamicMax}`}
                   </p>
                 </div>

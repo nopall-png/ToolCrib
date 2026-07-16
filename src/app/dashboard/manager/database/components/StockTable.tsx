@@ -24,9 +24,9 @@ export default function StockTable({ inventoryItems, handleDeleteStock, readOnly
   });
 
   return (
-    <div className="w-full bg-neutral-900 border border-zinc-800 rounded-2xl overflow-hidden shadow-2xl p-6 flex flex-col gap-6">
+    <div className="w-full bg-white border-none rounded-2xl overflow-hidden shadow-sm p-6 flex flex-col gap-6">
       {/* Search and Filters */}
-      <div className="flex flex-col md:flex-row gap-4 justify-between items-center bg-zinc-950/40 border border-zinc-850 p-4 rounded-xl">
+      <div className="flex flex-col md:flex-row gap-4 justify-between items-center bg-[#F4F7FE] border border-white p-4 rounded-xl">
         <div className="relative w-full md:w-80">
           <div className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500 w-4 h-4 flex items-center justify-center">
             <svg
@@ -47,17 +47,17 @@ export default function StockTable({ inventoryItems, handleDeleteStock, readOnly
             placeholder="Search SKU or component name..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full h-9 pl-9 pr-4 bg-zinc-950 text-white rounded-lg border border-zinc-800 focus:border-blue-500 focus:outline-none transition-colors text-xs font-mono placeholder-zinc-600"
+            className="w-full h-9 pl-9 pr-4 bg-white text-[#2B3674] rounded-lg border border-gray-100 focus:border-blue-500 focus:outline-none transition-colors text-xs font-mono placeholder-[#A3AED0]"
           />
         </div>
 
         <div className="flex items-center gap-4 w-full md:w-auto justify-end">
           <div className="flex items-center gap-2">
-            <span className="text-[10px] font-mono text-zinc-500 uppercase">Category:</span>
+            <span className="text-[10px] font-mono text-[#A3AED0] uppercase">Category:</span>
             <select
               value={categoryFilter}
               onChange={(e) => setCategoryFilter(e.target.value)}
-              className="h-9 px-3 bg-zinc-950 border border-zinc-800 text-zinc-300 text-xs font-mono rounded-lg focus:outline-none focus:border-zinc-700 cursor-pointer"
+              className="h-9 px-3 bg-white border border-gray-100 text-[#2B3674] text-xs font-mono rounded-lg focus:outline-none focus:border-blue-500 cursor-pointer"
             >
               <option value="ALL">All Categories</option>
               <option value="Mechanical">Mechanical</option>
@@ -70,11 +70,11 @@ export default function StockTable({ inventoryItems, handleDeleteStock, readOnly
           </div>
 
           <div className="flex items-center gap-2">
-            <span className="text-[10px] font-mono text-zinc-500 uppercase">Status:</span>
+            <span className="text-[10px] font-mono text-[#A3AED0] uppercase">Status:</span>
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="h-9 px-3 bg-zinc-950 border border-zinc-800 text-zinc-300 text-xs font-mono rounded-lg focus:outline-none focus:border-zinc-700 cursor-pointer"
+              className="h-9 px-3 bg-white border border-gray-100 text-[#2B3674] text-xs font-mono rounded-lg focus:outline-none focus:border-blue-500 cursor-pointer"
             >
               <option value="ALL">All Status</option>
               <option value="IN STOCK">In Stock</option>
@@ -88,7 +88,7 @@ export default function StockTable({ inventoryItems, handleDeleteStock, readOnly
       <div className="overflow-x-auto w-full text-xs font-mono">
         <table className="w-full text-left border-collapse">
           <thead>
-            <tr className="border-b border-zinc-800 text-gray-500 text-[10px] uppercase font-bold">
+            <tr className="border-b border-gray-100 text-[#A3AED0] text-[10px] uppercase font-bold">
               <th className="pb-3 px-4">SKU Code</th>
               <th className="pb-3 px-4">Component Name</th>
               <th className="pb-3 px-4">Category</th>
@@ -108,26 +108,26 @@ export default function StockTable({ inventoryItems, handleDeleteStock, readOnly
               filteredItems.map((item) => (
                 <tr
                   key={item.sku}
-                  className="border-b border-zinc-800/50 text-neutral-400 hover:text-zinc-200 transition-colors"
+                  className="border-b border-gray-50 text-[#A3AED0] hover:bg-gray-50/50 hover:text-[#2B3674] transition-colors"
                 >
-                  <td className="py-3.5 px-4 text-red-500 font-semibold">{item.sku}</td>
-                  <td className="py-3.5 px-4 font-sans text-gray-200">{item.name}</td>
+                  <td className="py-3.5 px-4 text-red-500 font-bold">{item.sku}</td>
+                  <td className="py-3.5 px-4 font-sans font-bold text-[#2B3674]">{item.name}</td>
                   <td className="py-3.5 px-4">
-                    <span className="px-2 py-0.5 bg-neutral-950 border border-zinc-800 text-gray-400 rounded text-[9px] uppercase tracking-wide">
+                    <span className="px-2 py-0.5 bg-gray-50 text-[#A3AED0] rounded text-[9px] uppercase tracking-wide">
                       {item.category}
                     </span>
                   </td>
-                  <td className="py-3.5 px-4 text-center text-white font-semibold font-mono">
+                  <td className="py-3.5 px-4 text-center text-[#2B3674] font-bold font-mono">
                     {item.quantity}
                   </td>
                   <td className="py-3.5 px-4 font-sans">
                     <span
-                      className={`px-2 py-0.5 rounded text-[9px] font-bold border ${
+                      className={`px-2 py-0.5 rounded text-[9px] font-bold ${
                         item.status === "IN STOCK"
-                          ? "bg-green-500/10 text-green-500 border-green-500/20"
+                          ? "bg-green-50 text-green-500"
                           : item.status === "LOW STOCK"
-                          ? "bg-yellow-500/10 text-yellow-400 border-yellow-500/20"
-                          : "bg-red-500/10 text-red-500 border-red-500/20"
+                          ? "bg-yellow-50 text-yellow-500"
+                          : "bg-red-50 text-red-500"
                       }`}
                     >
                       {item.status}

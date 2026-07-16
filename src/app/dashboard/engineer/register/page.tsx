@@ -139,8 +139,8 @@ export default function RegisterRegistryPage() {
     <DashboardLayout role="engineer">
       <div className="flex flex-col gap-10 w-full select-none pb-16 animate-fadeIn">
         <div className="flex items-center gap-1.5 text-2xl font-semibold tracking-wide">
-          <span className="text-neutral-500 font-medium">Dashboard/</span>
-          <span className="text-neutral-400 font-light text-xl">Register Registry</span>
+          <span className="text-gray-500 font-medium">Dashboard/</span>
+          <span className="text-[#2B3674] font-bold text-xl">Register Registry</span>
         </div>
 
         <AddStockForm
@@ -166,7 +166,7 @@ export default function RegisterRegistryPage() {
           categoryOptions={categoryOptions}
         />
 
-        <div className="w-full h-px bg-gradient-to-r from-transparent via-zinc-800 to-transparent"></div>
+        <div className="w-full h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent"></div>
 
         <AddMachineForm
           machineName={machineName}

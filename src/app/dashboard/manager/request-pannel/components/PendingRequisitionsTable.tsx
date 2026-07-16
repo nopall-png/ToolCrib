@@ -44,13 +44,13 @@ export default function PendingRequisitionsTable({
               <line x1="12" y1="16" x2="12.01" y2="16"></line>
             </svg>
           </div>
-          <h3 className="text-gray-300 text-sm font-bold font-mono uppercase tracking-wider">
+          <h3 className="text-[#2B3674] text-sm font-bold font-mono uppercase tracking-wider">
             Pending Requisitions (Need ACC)
           </h3>
         </div>
 
         <div className="flex items-center gap-2">
-          <span className="text-neutral-400 text-xs font-medium flex items-center gap-1">
+          <span className="text-[#A3AED0] text-xs font-medium flex items-center gap-1">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="12"
@@ -72,16 +72,16 @@ export default function PendingRequisitionsTable({
         </div>
       </div>
 
-      <div className="w-full bg-neutral-900 border border-zinc-800 rounded-2xl overflow-hidden shadow-2xl p-6 min-h-[220px]">
+      <div className="w-full bg-white border-none rounded-2xl overflow-hidden shadow-sm p-6 min-h-[220px]">
         <div className="overflow-x-auto w-full text-xs font-mono">
           {pendingList.length === 0 ? (
-            <div className="py-12 text-center text-neutral-500 uppercase tracking-widest text-[10px]">
+            <div className="py-12 text-center text-[#A3AED0] uppercase tracking-widest text-[10px]">
               No pending requisitions require action.
             </div>
           ) : (
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="border-b border-zinc-800 text-gray-500 text-[10px] uppercase font-bold">
+                <tr className="border-b border-gray-100 text-[#A3AED0] text-[10px] uppercase font-bold">
                   <th className="pb-3 px-4">REQ ID / Date</th>
                   <th className="pb-3 px-4">Requestor</th>
                   <th className="pb-3 px-4">Item Details</th>
@@ -96,36 +96,36 @@ export default function PendingRequisitionsTable({
                   <React.Fragment key={req.id}>
                     <tr
                       onClick={() => toggleRow(req.id)}
-                      className="border-b border-zinc-800/50 text-neutral-400 hover:text-zinc-200 hover:bg-white/5 transition-colors cursor-pointer"
+                      className="border-b border-gray-50 text-[#A3AED0] hover:bg-gray-50/50 hover:text-[#2B3674] transition-colors cursor-pointer"
                     >
-                      <td className="py-4 px-4 font-bold text-white">
+                      <td className="py-4 px-4 font-bold text-[#2B3674]">
                         {req.id}
                         <br />
-                        <span className="text-[9px] font-normal text-gray-500">{req.date}</span>
+                        <span className="text-[9px] font-normal text-[#A3AED0]">{req.date}</span>
                       </td>
                       <td className="py-4 px-4">
                         <div className="flex items-center gap-2">
-                          <div className="w-6 h-6 rounded bg-zinc-800 border border-zinc-700 flex items-center justify-center text-[10px] text-gray-400 select-none">
+                          <div className="w-6 h-6 rounded bg-gray-50 border border-gray-100 flex items-center justify-center text-[10px] text-[#2B3674] select-none font-bold">
                             {req.requestor.charAt(0)}
                           </div>
-                          <span className="font-sans text-gray-300 font-medium">
+                          <span className="font-sans text-[#2B3674] font-medium">
                             {req.requestor} ({req.shift})
                           </span>
                         </div>
                       </td>
                       <td className="py-4 px-4">
-                        <span className="text-blue-500 text-sm font-semibold font-sans">{req.itemName}</span>
+                        <span className="text-[#4318FF] text-sm font-semibold font-sans">{req.itemName}</span>
                         <br />
-                        <span className="text-gray-500 text-[9px]">{req.destination}</span>
+                        <span className="text-[#A3AED0] text-[9px]">{req.destination}</span>
                       </td>
                       <td className="py-4 px-4 text-center">
-                        <span className="px-2.5 py-1 bg-neutral-950 border border-zinc-850 rounded text-white font-bold font-mono">
+                        <span className="px-2.5 py-1 bg-gray-50 border border-gray-100 rounded text-[#2B3674] font-bold font-mono">
                           {req.quantity}
                         </span>
                       </td>
                       <td className="py-4 px-4">
-                        <div className="px-2.5 py-1.5 bg-neutral-950 rounded border border-zinc-850 inline-flex items-center gap-2 max-w-[170px]">
-                          <div className="p-1 bg-red-500/10 text-red-500 rounded shrink-0">
+                        <div className="px-2.5 py-1.5 bg-gray-50 rounded border border-gray-100 inline-flex items-center gap-2 max-w-[170px]">
+                          <div className="p-1 bg-red-50 text-red-500 rounded shrink-0">
                             <svg
                               xmlns="http://www.w3.org/2000/svg"
                               width="12"
@@ -140,21 +140,21 @@ export default function PendingRequisitionsTable({
                             </svg>
                           </div>
                           <div className="flex flex-col min-w-0">
-                            <span className="text-[10px] text-gray-300 truncate max-w-[100px]" title={req.documentName}>
+                            <span className="text-[10px] text-[#2B3674] truncate max-w-[100px]" title={req.documentName}>
                               {req.documentName}
                             </span>
-                            <span className="text-[8px] text-gray-500 font-normal">{req.documentSize}</span>
+                            <span className="text-[8px] text-[#A3AED0] font-normal">{req.documentSize}</span>
                           </div>
                         </div>
                       </td>
                       <td className="py-4 px-4">
                         <span
-                          className={`px-2 py-0.5 rounded-sm text-[9px] font-bold border ${
+                          className={`px-2 py-0.5 rounded-sm text-[9px] font-bold ${
                             req.urgency === "CRITICAL"
-                              ? "bg-red-500/10 text-red-500 border-red-500/20"
+                              ? "bg-red-50 text-red-500"
                               : req.urgency === "HIGH"
-                              ? "bg-yellow-500/10 text-yellow-500 border-yellow-500/20"
-                              : "bg-zinc-800/30 text-gray-400 border-zinc-800"
+                              ? "bg-yellow-50 text-yellow-500"
+                              : "bg-gray-100 text-gray-500"
                           }`}
                         >
                           {req.urgency}
@@ -167,7 +167,7 @@ export default function PendingRequisitionsTable({
                               e.stopPropagation();
                               handleReject(req);
                             }}
-                            className="px-3 py-1.5 rounded-sm border border-zinc-850 hover:bg-red-950/20 hover:border-red-900/50 hover:text-red-500 text-gray-400 text-xs font-bold transition-all cursor-pointer tracking-wider"
+                            className="px-3 py-1.5 rounded-sm border border-gray-200 hover:bg-red-50 hover:border-red-100 hover:text-red-500 text-[#A3AED0] text-xs font-bold transition-all cursor-pointer tracking-wider"
                           >
                             REJECT
                           </button>
@@ -176,7 +176,7 @@ export default function PendingRequisitionsTable({
                               e.stopPropagation();
                               handleAccept(req);
                             }}
-                            className="px-4 py-1.5 bg-blue-500 hover:bg-blue-600 active:bg-blue-700 text-white text-xs font-bold rounded-sm shadow-[0px_0px_15px_0px_rgba(59,130,246,0.20)] transition-all cursor-pointer tracking-wider"
+                            className="px-4 py-1.5 bg-[#4318FF] hover:bg-blue-700 active:bg-blue-800 text-white text-xs font-bold rounded-sm shadow-sm transition-all cursor-pointer tracking-wider"
                           >
                             ACC
                           </button>
@@ -184,16 +184,16 @@ export default function PendingRequisitionsTable({
                       </td>
                     </tr>
                     {expandedRows[req.id] && req.items && req.items.length > 0 && (
-                      <tr className="bg-neutral-950/80 border-b border-zinc-800/50">
+                      <tr className="bg-[#F4F7FE] border-b border-gray-100">
                         <td colSpan={7} className="py-4 px-8">
-                          <div className="bg-zinc-900/80 rounded-xl border border-zinc-800/80 p-5 shadow-inner">
-                            <h4 className="text-zinc-400 text-xs font-bold mb-3 uppercase tracking-wider flex items-center gap-2">
-                              <span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
+                          <div className="bg-white rounded-xl border border-gray-100 p-5 shadow-sm">
+                            <h4 className="text-[#2B3674] text-xs font-bold mb-3 uppercase tracking-wider flex items-center gap-2">
+                              <span className="w-1.5 h-1.5 rounded-full bg-[#4318FF]"></span>
                               Detailed Requested Items
                             </h4>
                             <table className="w-full text-left">
                               <thead>
-                                <tr className="text-zinc-500 text-[10px] uppercase border-b border-zinc-800/80">
+                                <tr className="text-[#A3AED0] text-[10px] uppercase border-b border-gray-100">
                                   <th className="pb-2 w-1/4">SKU / Part ID</th>
                                   <th className="pb-2 w-1/2">Part Name</th>
                                   <th className="pb-2 text-center w-1/4">Quantity</th>
@@ -203,11 +203,11 @@ export default function PendingRequisitionsTable({
                                 {req.items.map((item, idx) => (
                                   <tr
                                     key={idx}
-                                    className="text-zinc-300 text-xs border-b border-zinc-800/50 last:border-0 hover:bg-white/5 transition-colors"
+                                    className="text-[#2B3674] text-xs border-b border-gray-50 last:border-0 hover:bg-gray-50/50 transition-colors"
                                   >
-                                    <td className="py-2.5 font-mono text-gray-400">{item.sku}</td>
-                                    <td className="py-2.5 text-blue-400 font-medium">{item.part_name}</td>
-                                    <td className="py-2.5 text-center font-bold text-white bg-zinc-800/30 rounded">
+                                    <td className="py-2.5 font-mono text-[#A3AED0]">{item.sku}</td>
+                                    <td className="py-2.5 text-[#4318FF] font-medium">{item.part_name}</td>
+                                    <td className="py-2.5 text-center font-bold text-[#2B3674] bg-gray-50 rounded">
                                       {item.quantity}
                                     </td>
                                   </tr>

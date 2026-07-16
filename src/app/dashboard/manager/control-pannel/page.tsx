@@ -181,10 +181,9 @@ export default function ControlPanelPage() {
         {/* Header Section / Breadcrumbs */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="flex items-center gap-1.5 text-2xl font-semibold tracking-wide">
-            <span className="text-neutral-500 font-medium">Dashboard/</span>
-            <span className="text-neutral-400 font-light text-xl">Control Panel</span>
+            {/* Breadcrumbs moved to Navbar */}
           </div>
-          <div className="text-[10px] font-mono bg-green-500/10 text-green-500 border border-green-500/20 px-3 py-1.5 rounded-lg flex items-center gap-2">
+          <div className="text-[10px] font-mono bg-green-50 text-green-500 border border-green-100 px-3 py-1.5 rounded-lg flex items-center gap-2">
             <span className="relative flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>

@@ -31,27 +31,30 @@ export default function Navbar({ onToggleChatbot }: NavbarProps) {
 
   return (
     <div className="w-full h-14 flex items-center justify-between relative select-none">
-      
+
       {/* Left: User Welcome Greeting */}
       <div className="flex flex-col justify-start items-start">
-        <div className="flex items-center gap-1 text-neutral-400 text-sm font-normal">
+        <div className="flex items-center gap-1 text-[#707EAE] text-sm font-normal">
           <span>Welcome,</span>
-          <span className="text-neutral-400 text-sm font-normal">
+          <span className="text-[#707EAE] text-sm font-normal">
             {displayGreeting}
           </span>
         </div>
-        <div className="text-white text-2xl font-bold font-sans tracking-wide leading-8">
+        <div className="text-[#2B3674] text-2xl font-bold font-sans tracking-wide leading-8">
           {displayName}
+        </div>
+        <div className="text-[#2B3674] text-lg font-medium mt-2">
+          Dashboard<span className="font-normal text-[#A3AED0]">/Control Panel</span>
         </div>
       </div>
 
       {/* Right: Notification Bell & Profile Dropdown */}
       <div className="flex items-center gap-4 z-30">
-        
+
         {/* Notification Bell */}
         <button
           onClick={() => alert("Notification panel is in read-only onboarding state.")}
-          className="relative w-12 h-12 bg-neutral-900 border border-zinc-800 hover:border-zinc-700 text-neutral-400 hover:text-white rounded-full flex items-center justify-center cursor-pointer transition-all"
+          className="relative w-12 h-12 bg-white border border-gray-100 hover:border-gray-200 text-[#A3AED0] hover:text-[#2B3674] shadow-sm rounded-full flex items-center justify-center cursor-pointer transition-all"
         >
           {/* Bell Icon */}
           <svg
@@ -69,14 +72,14 @@ export default function Navbar({ onToggleChatbot }: NavbarProps) {
             <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
           </svg>
           {/* Red Indicator Badge */}
-          <div className="absolute right-3.5 top-3.5 w-1.5 h-1.5 bg-red-500 rounded-full"></div>
+          <div className="absolute right-3.5 top-3.5 w-1.5 h-1.5 bg-[#4318FF] rounded-full"></div>
         </button>
 
         {/* Profile Dropdown Box */}
         <div className="relative">
           <button
             onClick={() => setDropdownOpen(!dropdownOpen)}
-            className="h-12 pl-1 pr-4 py-1 bg-neutral-900 border border-zinc-800 hover:border-zinc-700 text-neutral-400 hover:text-white rounded-full flex items-center gap-3 cursor-pointer transition-all"
+            className="h-12 pl-1 pr-4 py-1 bg-white border border-gray-100 hover:border-gray-200 text-[#A3AED0] hover:text-[#2B3674] shadow-sm rounded-full flex items-center gap-3 cursor-pointer transition-all"
           >
             {/* User Avatar */}
             {/* Using standard img tag for external fallback/placeholder url */}
@@ -84,7 +87,7 @@ export default function Navbar({ onToggleChatbot }: NavbarProps) {
             <img
               src={displayAvatar}
               alt="User Avatar"
-              className="w-8 h-8 rounded-full border border-zinc-800 object-cover"
+              className="w-8 h-8 rounded-full border border-gray-100 object-cover"
               onError={(e) => {
                 // Fallback if image doesn't exist
                 (e.target as HTMLImageElement).src = "https://placehold.co/32x32";
@@ -99,9 +102,8 @@ export default function Navbar({ onToggleChatbot }: NavbarProps) {
               fill="none"
               stroke="currentColor"
               strokeWidth="2"
-              className={`transform transition-transform duration-200 ${
-                dropdownOpen ? "rotate-180" : ""
-              }`}
+              className={`transform transition-transform duration-200 ${dropdownOpen ? "rotate-180" : ""
+                }`}
             >
               <polyline points="6 9 12 15 18 9"></polyline>
             </svg>
@@ -109,8 +111,8 @@ export default function Navbar({ onToggleChatbot }: NavbarProps) {
 
           {/* Profile Dropdown Menu */}
           {dropdownOpen && (
-            <div className="absolute right-0 mt-2 w-48 bg-neutral-900 border border-zinc-800 rounded-xl py-2 shadow-2xl z-50 text-[11px] font-mono text-neutral-400">
-              <div className="px-4 py-2 border-b border-zinc-800/80 text-white font-sans font-bold">
+            <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-100 rounded-xl py-2 shadow-lg z-50 text-[11px] font-mono text-gray-500">
+              <div className="px-4 py-2 border-b border-gray-100/80 text-[#2B3674] font-sans font-bold">
                 User Details
               </div>
               <div className="px-4 py-1.5">
@@ -130,12 +132,12 @@ export default function Navbar({ onToggleChatbot }: NavbarProps) {
         {/* Company Logo button to toggle Chatbot */}
         <button
           onClick={onToggleChatbot}
-          className="w-16 h-12 px-4 py-1 bg-neutral-900 border border-zinc-800 hover:border-zinc-700 rounded-full flex items-center justify-center cursor-pointer transition-all shadow-lg overflow-hidden shrink-0 group"
+          className="w-16 h-12 px-4 py-1 bg-white border border-[#4318FF]/10 hover:border-[#4318FF]/30 rounded-full flex items-center justify-center cursor-pointer transition-all shadow-sm overflow-hidden shrink-0 group"
           title="Toggle ToolCrib Copilot"
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src="/logo.png"
+            src="/logo1.png"
             alt="Company Logo"
             className="w-10 h-10 object-contain brightness-110 group-hover:scale-105 transition-transform"
           />

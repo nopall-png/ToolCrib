@@ -16,14 +16,14 @@ export default function UserMetricsSummary({
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
       {/* Card 1: Total Personnel */}
-      <div className="bg-neutral-900 border border-zinc-800 rounded-2xl p-6 relative overflow-hidden flex justify-between items-center h-24 shadow-lg">
+      <div className="bg-white border border-gray-100 rounded-2xl p-6 relative overflow-hidden flex justify-between items-center h-24 shadow-sm">
         <div className="flex flex-col z-10">
-          <span className="text-gray-500 text-[10px] font-normal font-mono uppercase tracking-wider">
+          <span className="text-[#A3AED0] text-[10px] font-normal font-mono uppercase tracking-wider">
             Total Personnel
           </span>
-          <span className="text-white text-3xl font-bold font-mono mt-1">{totalPersonnel}</span>
+          <span className="text-[#2B3674] text-3xl font-bold font-mono mt-1">{totalPersonnel}</span>
         </div>
-        <div className="w-12 h-12 bg-neutral-900 border border-zinc-800 rounded-full flex justify-center items-center shrink-0 text-neutral-400 z-10">
+        <div className="w-12 h-12 bg-gray-50 border border-gray-100 rounded-full flex justify-center items-center shrink-0 text-[#2B3674] z-10">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="16"
@@ -38,24 +38,24 @@ export default function UserMetricsSummary({
             <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
           </svg>
         </div>
-        <div className="absolute inset-0 bg-gradient-to-r from-transparent to-zinc-800/10 pointer-events-none"></div>
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent to-gray-50 pointer-events-none"></div>
       </div>
 
       {/* Card 2: Active Sessions */}
-      <div className="bg-neutral-900 border border-zinc-800 rounded-2xl p-6 relative overflow-hidden flex justify-between items-center h-24 shadow-lg">
+      <div className="bg-white border border-gray-100 rounded-2xl p-6 relative overflow-hidden flex justify-between items-center h-24 shadow-sm">
         <div className="flex flex-col z-10">
           <div className="flex items-center gap-1.5">
             <span className="relative flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
             </span>
-            <span className="text-gray-500 text-[10px] font-normal font-mono uppercase tracking-wider">
+            <span className="text-[#A3AED0] text-[10px] font-normal font-mono uppercase tracking-wider">
               Active Sessions
             </span>
           </div>
-          <span className="text-white text-3xl font-bold font-mono mt-1">{activeSessions}</span>
+          <span className="text-[#2B3674] text-3xl font-bold font-mono mt-1">{activeSessions}</span>
         </div>
-        <div className="w-12 h-12 bg-neutral-900 border border-zinc-800 rounded-full flex justify-center items-center shrink-0 text-green-500 z-10">
+        <div className="w-12 h-12 bg-green-50 border border-green-100 rounded-full flex justify-center items-center shrink-0 text-green-500 z-10">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="16"
@@ -69,18 +69,18 @@ export default function UserMetricsSummary({
             <circle cx="12" cy="12" r="3"></circle>
           </svg>
         </div>
-        <div className="absolute inset-0 bg-gradient-to-r from-transparent to-green-950/5 pointer-events-none"></div>
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent to-green-50/50 pointer-events-none"></div>
       </div>
 
       {/* Card 3: Managers count */}
-      <div className="bg-neutral-900 border border-zinc-800 rounded-2xl p-6 relative overflow-hidden flex justify-between items-center h-24 shadow-lg">
+      <div className="bg-white border border-gray-100 rounded-2xl p-6 relative overflow-hidden flex justify-between items-center h-24 shadow-sm">
         <div className="flex flex-col z-10">
-          <span className="text-gray-500 text-[10px] font-normal font-mono uppercase tracking-wider">
+          <span className="text-[#A3AED0] text-[10px] font-normal font-mono uppercase tracking-wider">
             Managers
           </span>
-          <span className="text-white text-3xl font-bold font-mono mt-1">{systemAdmins}</span>
+          <span className="text-[#2B3674] text-3xl font-bold font-mono mt-1">{systemAdmins}</span>
         </div>
-        <div className="w-12 h-12 bg-neutral-900 border border-zinc-800 rounded-full flex justify-center items-center shrink-0 text-red-500 z-10">
+        <div className="w-12 h-12 bg-blue-50 border border-blue-100 rounded-full flex justify-center items-center shrink-0 text-[#4318FF] z-10">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="16"
@@ -93,7 +93,7 @@ export default function UserMetricsSummary({
             <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"></path>
           </svg>
         </div>
-        <div className="absolute inset-0 bg-gradient-to-r from-transparent to-red-950/5 pointer-events-none"></div>
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent to-blue-50/50 pointer-events-none"></div>
       </div>
     </div>
   );

@@ -208,12 +208,12 @@ export default function Sidebar({ role = "manager" }: SidebarProps) {
   });
 
   return (
-    <div className="w-28 shrink-0 flex flex-col items-center justify-between py-8 bg-neutral-900 rounded-[45px] border border-zinc-800 h-[817px] relative select-none">
-      
+    <div className="w-28 shrink-0 flex flex-col items-center justify-between py-8 bg-white rounded-[45px] border border-transparent shadow-sm h-[817px] relative select-none">
+
       {/* Brand Logo */}
       <div className="relative w-14 h-14 flex items-center justify-center">
         <Image
-          src="/logo.png"
+          src="/logo1.png"
           alt="ToolCrib Logo"
           width={54}
           height={53}
@@ -239,15 +239,14 @@ export default function Sidebar({ role = "manager" }: SidebarProps) {
                 }
               }}
               title={item.label}
-              className={`w-12 h-12 rounded-full flex items-center justify-center cursor-pointer transition-all duration-300 group relative ${
-                isActive
-                  ? "bg-red-500 text-white shadow-[0px_4px_6px_-4px_rgba(240,68,56,0.20)] shadow-[0px_10px_15px_-3px_rgba(240,68,56,0.20)]"
-                  : "text-neutral-500 hover:text-neutral-300 hover:bg-neutral-800/50"
-              }`}
+              className={`w-12 h-12 rounded-full flex items-center justify-center cursor-pointer transition-all duration-300 group relative ${isActive
+                ? "bg-[#4318FF] text-white shadow-[0px_4px_6px_-4px_rgba(67,24,255,0.20)] shadow-[0px_10px_15px_-3px_rgba(67,24,255,0.20)]"
+                : "text-[#A3AED0] hover:text-[#2B3674] hover:bg-gray-50"
+                }`}
             >
               {item.icon}
               {/* Tooltip */}
-              <span className="absolute left-full ml-3 px-2.5 py-1.5 rounded-lg bg-neutral-900 text-white text-[10px] font-mono font-medium tracking-wide uppercase border border-zinc-800 opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity duration-200 shadow-xl whitespace-nowrap z-50">
+              <span className="absolute left-full ml-3 px-2.5 py-1.5 rounded-lg bg-white text-gray-700 text-[10px] font-mono font-medium tracking-wide uppercase border border-gray-100 opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity duration-200 shadow-xl whitespace-nowrap z-50">
                 {item.label}
               </span>
             </button>
@@ -259,7 +258,7 @@ export default function Sidebar({ role = "manager" }: SidebarProps) {
       <button
         onClick={handleLogout}
         title="Terminate Session"
-        className="w-20 h-20 bg-neutral-950 hover:bg-red-950/20 text-neutral-500 hover:text-red-500 border border-zinc-900 hover:border-red-900/50 rounded-full flex items-center justify-center transition-all duration-300 group cursor-pointer"
+        className="w-20 h-20 bg-gray-50 hover:bg-red-50 text-[#A3AED0] hover:text-red-500 border border-gray-100 hover:border-red-100 rounded-full flex items-center justify-center transition-all duration-300 group cursor-pointer"
       >
         <div className="w-8 h-8 flex items-center justify-center">
           <svg
